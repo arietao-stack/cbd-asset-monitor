@@ -206,3 +206,104 @@ yes/no decision and the 1st next step.
 ### The one-sentence version of her genius
 > **She doesn't report numbers — she makes an argument, in the reader's own language, that ends in a decision, and shows her work so it's impossible to distrust.**
 > To beat her: do all that, but measure against the *plan*, close the loop on past bets, and show the *confidence* behind every number.
+
+---
+
+## PART 7 — PROPOSALS / PITCH DECKS (the scrolling-HTML kind)
+
+Reverse-engineered from her "CoBa's Daughter × Lasso — Equestrian Activation" deck.
+A *dashboard reports*; a *proposal persuades*. Same design DNA, different job.
+
+### The persuasion arc (her section order)
+1. **Cover / at-a-glance** — kicker ("Prepared for [partner]"), a big headline with one
+   word in italic-accent, a one-line sub, and a **meta row** (Horizon · Cadence · Model)
+   that frames the whole deal in 3 facts. Plus a scroll cue.
+2. **The Big Picture** — show the *plan visually first* (a timeline / Gantt: parallel
+   tracks, campaigns over months) + a "how to read it" caption. Orient before detail.
+3. **By Objective** — *why it works.* Two cards (e.g. Awareness vs Conversion), each with
+   story bullets and a callout that states the through-line thesis.
+4. **Make it tangible** — **mock-ups of the actual output** (fake but realistic Instagram
+   posts, moodboard). Let them *see* it before they commit. Show, don't tell.
+5. **By Campaign / workstream** — numbered rows, each: tag (objective) · products in focus
+   (chips) · the specific role it plays.
+6. **The Ask** — a **small first step** ("Let's start with July") with **month-one
+   targets** (views · sales · ROAS) framed as "targets to align on, not guarantees", then
+   a numbered **"What we need from [partner]"** list, then a CTA.
+7. **Footer** — Confidential · For Partnership Alignment.
+
+### 3 senior moves to steal
+- **Proof-of-concept ask.** Don't ask for the 6-month commitment — ask for month one with
+  clear targets, then expand. Lowers the barrier, earns the rest.
+- **Mock-ups make it real.** A realistic preview of the deliverable de-risks the yes.
+- **A single through-line thesis** repeated in every section ("even awareness is shoppable
+  — the code is in every caption"). The deck argues *one* idea from many angles.
+
+### The MOTION SYSTEM (what makes it feel premium — all reproducible, pure CSS+JS, no libraries)
+- **Scroll progress bar** — a 3px gradient bar at the top tracking scroll %.
+- **Sticky-nav solidify** — nav is transparent over the hero, then fades to a frosted
+  background + shrinks padding after ~60px scroll.
+- **Scroll-reveal** — elements start `opacity:0; translateY(24px)` and animate in when they
+  enter the viewport (IntersectionObserver adds `.in`). The signature "things rise as you
+  scroll" feel. Stagger by putting `.reveal` on each block.
+- **Scrollspy** — the active section's nav link underlines as you pass it.
+- **Animated hero visual** — an SVG "nucleus" with orbiting dots spinning at different
+  speeds/directions (`@keyframes spin`, 24s/38s/54s). One tasteful motion centrepiece.
+- **Micro-interactions** — cards/bars lift on hover (`translateY(-3px)`), a pulsing dot,
+  smooth anchor scrolling (`html{scroll-behavior:smooth}`).
+- **Accessibility** — `@media (prefers-reduced-motion: reduce)` disables all of it. (Senior
+  tell: motion that respects the user.)
+- **Self-contained interactivity** — click/drag-to-upload image placeholders, saved to
+  `localStorage`, with in-browser canvas resize. ⚠️ localStorage images live only in *your*
+  browser — they are NOT saved into the .html file, so a teammate opening the file won't see
+  them. To make images permanent, embed them in the HTML (see "How to update" below).
+
+### THE PROPOSAL MASTER PROMPT (paste to Claude; fill [BRACKETS])
+```
+ROLE: Senior brand strategist + premium web designer. Build a single self-contained,
+scrollable HTML pitch deck (no external libraries except a Google font).
+
+GOAL: Persuade [PARTNER/AUDIENCE] to approve [THE ASK]. Through-line thesis to repeat in
+every section: "[ONE-SENTENCE THESIS]".
+
+INPUTS: [offer, timeline, products, targets, what you need from them, any real numbers].
+BRAND WORLD: [brand + vibe + palette + font]. Tone: confident, warm, editorial.
+
+SECTION ARC (in order):
+1. Cover: kicker "Prepared for [partner]", big headline (one word in italic accent),
+   one-line sub, a META ROW of 3 framing facts (e.g. Horizon · Cadence · Model), scroll cue.
+2. Big Picture: a visual timeline/Gantt of the plan (parallel tracks across months) + a
+   "how to read it" caption.
+3. By Objective: 2–3 cards explaining why it works; each ends in a callout restating the thesis.
+4. Make it tangible: realistic MOCK-UPS of the actual output (e.g. in-feed social posts,
+   moodboard) with image placeholders.
+5. By Campaign/workstream: numbered rows — tag · items-in-focus chips · the role it plays.
+6. The Ask: a PROOF-OF-CONCEPT first step (e.g. "start with month one") + month-one targets
+   (framed "targets to align on, not guarantees") + a numbered "What we need" list + a CTA.
+7. Footer: Confidential · For [purpose].
+
+DESIGN: one confident font; big headlines with italic-accent emphasis; UPPERCASE wide-tracked
+eyebrows; warm on-brand palette; rounded cards with soft shadows + hover-lift; chips/tags;
+numbered rows; content width ~1140px.
+
+MOTION (pure CSS+JS, no libraries): top scroll-progress bar; nav transparent→frosted on
+scroll; scroll-reveal (opacity+translateY via IntersectionObserver) on each block; scrollspy
+active nav link; ONE tasteful animated hero visual (e.g. orbiting SVG); hover micro-lifts;
+smooth scroll; and a `prefers-reduced-motion` fallback that disables all motion.
+Optionally: click/drag image-upload placeholders (localStorage) — but note images won't
+travel with the file.
+
+OUTPUT: one .html file, opens offline, mobile-responsive.
+```
+
+### How to UPDATE a proposal/dashboard HTML each time
+This is one self-contained file — there's no database. Three ways, easiest first:
+1. **Tell Claude what changed** ("update July targets to 4M views, add a 5th campaign row")
+   → I edit the HTML and hand it back. Best for copy/number/section changes.
+2. **Edit the text yourself** — the words and numbers are right there in the HTML
+   (e.g. `<div class="big">3M+</div>`); change between the tags, save, refresh the browser.
+3. **Images:** drag/drop works for previewing, but to make them permanent (so others see
+   them) embed them: either `<img src="data:image/jpeg;base64,…">` (Claude can bake them in)
+   or host the images and use real URLs. The drag-drop/localStorage version is only for
+   your own screen.
+- **To share:** send the .html (opens anywhere, offline) OR push to GitHub Pages for a live
+  link — but proposals are usually Confidential, so prefer sending the file or a private host.
