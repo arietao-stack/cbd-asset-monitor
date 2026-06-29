@@ -3,212 +3,378 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CBD Creative Asset Tracker — June 2026</title>
+<title>CoBa's Daughter — Creative Asset Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#0f1115; --card:#181b22; --line:#262b34; --txt:#e8ebf0; --mut:#8b93a3;
-    --tk:#25f4ee; --ig:#e1306c; --fb:#1877f2; --ok:#3ddc84; --bad:#ff5c5c; --warn:#ffb020;
+    --ivory:#f8f7f2; --paper:#fffefb; --stone:#efecec; --line:#e6e2d8;
+    --forest:#2c332f; --olive:#716a56; --ink:#252525; --clay:#b08968; --sand:#a67c52;
+    --muted:#8f897b; --good:#3f6b4f; --warn:#b07f3a; --bad:#a8584f;
+    --tiktok:#2c332f; --instagram:#b08968; --facebook:#716a56;
+    --r:14px; --maxw:1180px;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  header{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:14px}
-  h1{font-size:19px;margin:0;font-weight:650}
-  .sub{color:var(--mut);font-size:12.5px}
-  .wrap{padding:20px 26px;max-width:1500px;margin:0 auto}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-  .card .k{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
-  .card .v{font-size:24px;font-weight:680;margin-top:4px}
-  .card .v small{font-size:13px;color:var(--mut);font-weight:500}
-  .chartbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px;height:260px}
-  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-  .chip{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:12.5px}
-  .chip.on{background:#2a3340;border-color:#3a4656}
-  input.search{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:7px 12px;border-radius:8px;min-width:200px;outline:none}
-  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:auto}
-  table{border-collapse:collapse;width:100%;font-size:12.8px}
-  th,td{padding:9px 11px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
-  th{position:sticky;top:0;background:#1d212a;color:var(--mut);font-weight:600;cursor:pointer;user-select:none}
-  th:hover{color:var(--txt)}
-  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-  tr:hover td{background:#1c212b}
-  .pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
-  .p-tiktok{color:var(--tk);background:rgba(37,244,238,.12)}
-  .p-instagram{color:var(--ig);background:rgba(225,48,108,.14)}
-  .p-facebook{color:var(--fb);background:rgba(24,119,242,.14)}
-  .s-ok{color:var(--ok)} .s-dead,.s-error,.s-blocked{color:var(--bad)} .s-private,.s-pending{color:var(--warn)}
-  a{color:#6ea8ff;text-decoration:none} a:hover{text-decoration:underline}
-  .muted{color:var(--mut)}
-  .spark{height:22px;width:90px}
-  .foot{color:var(--mut);font-size:11.5px;margin-top:14px;text-align:center}
-  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  body{margin:0;background:var(--ivory);color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--sand);text-decoration:none} a:hover{text-decoration:underline}
+  h1,h2,h3{margin:0;font-weight:800;color:var(--forest);letter-spacing:-.01em}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--olive)}
+  .muted{color:var(--muted)}
+
+  /* sticky nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(248,247,242,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:20px;height:54px}
+  nav .brand{font-weight:800;color:var(--forest);letter-spacing:-.01em}
+  nav .links{display:flex;gap:18px;font-size:12.5px;font-weight:600;flex-wrap:wrap}
+  nav .links a{color:var(--olive)} nav .links a:hover{color:var(--forest);text-decoration:none}
+  nav .upd{margin-left:auto;font-size:11px;color:var(--muted);text-align:right}
+
+  section{padding:34px 0;border-bottom:1px solid var(--line)}
+  .sechead{margin-bottom:18px}
+  .sechead h2{font-size:20px;margin-top:3px}
+  .sechead p{margin:5px 0 0;color:var(--olive);font-size:13.5px;max-width:760px}
+
+  /* hero */
+  .hero{padding:46px 0 30px}
+  .hero h1{font-size:34px;line-height:1.1;margin:8px 0 6px;max-width:780px}
+  .hero .lead{font-size:16px;color:var(--olive);max-width:720px;margin:0 0 4px}
+  .hero .live{font-size:12px;font-weight:700;color:var(--clay);letter-spacing:.08em;text-transform:uppercase}
+  .summary{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-top:22px}
+  .summary .eyebrow{margin-bottom:12px}
+  .summary ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+  .summary li{display:flex;gap:11px;font-size:14px;color:#3a3a36;align-items:flex-start}
+  .summary li::before{content:"‣";color:var(--clay);font-weight:800;font-size:17px;line-height:1.2}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:17px 18px}
+  .kpi .k{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .kpi .v{font-size:28px;font-weight:800;color:var(--forest);letter-spacing:-.02em;line-height:1;margin-top:8px}
+  .kpi .tag{margin-top:9px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--olive)}
+  .delta{font-size:11px;font-weight:800;margin-left:7px}
+  .delta.up{color:var(--good)} .delta.down{color:var(--bad)} .delta.flat{color:var(--muted)}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h3{font-size:14px}
+  .card .sub{color:var(--olive);font-size:12.5px;margin:4px 0 14px}
+
+  /* bar rows */
+  .bars{display:grid;gap:13px}
+  .bar .top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:5px}
+  .bar .top b{color:var(--forest);font-weight:700}
+  .bar .track{height:9px;background:var(--stone);border-radius:99px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:99px}
+
+  /* donut */
+  .donut{display:flex;align-items:center;gap:20px}
+  .donut .legend{display:grid;gap:8px;font-size:13px}
+  .donut .legend .row{display:flex;align-items:center;gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+  /* highlight cards */
+  .hls{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .hl{display:flex;gap:13px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .rank{font-size:13px;font-weight:800;color:var(--clay);flex:none;width:18px}
+  .hlthumb{width:46px;height:46px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:17px}
+  .hl .who{font-weight:700;color:var(--forest);font-size:13.5px}
+  .hl .what{color:var(--olive);font-size:12px;margin:2px 0 6px;line-height:1.35}
+  .hl .stats{font-size:12px;color:var(--ink)} .hl .stats b{color:var(--forest)}
+
+  /* table */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .chip{background:var(--paper);border:1px solid var(--line);color:var(--olive);padding:6px 13px;border-radius:99px;cursor:pointer;font-size:12.5px;font-weight:600}
+  .chip.on{background:var(--forest);border-color:var(--forest);color:#fff}
+  input.search{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;min-width:210px;outline:none;font-family:inherit;font-size:13px}
+  .tblwrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  .tbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding:10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);cursor:pointer;white-space:nowrap}
+  .tbl th:hover{color:var(--forest)}
+  .tbl td{padding:10px;border-bottom:1px solid var(--stone);vertical-align:middle;white-space:nowrap}
+  .tbl tr:hover td{background:#faf8f3}
+  .tbl .num{text-align:right;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:99px;text-transform:capitalize;white-space:nowrap}
+  .b-tiktok{background:#2c332f;color:#fff} .b-instagram{background:#f0e4d8;color:#9c6b3f}
+  .b-facebook{background:#e7e3d7;color:#5c5848}
+  .ch{font-size:11px;font-weight:700;color:var(--olive)}
+  .st{font-weight:700;font-size:11.5px;text-transform:capitalize}
+  .st.ok{color:var(--good)} .st.blocked,.st.error,.st.dead{color:var(--bad)} .st.private,.st.pending{color:var(--warn)}
+  .spark{height:20px;width:74px;vertical-align:middle}
+  .creator{font-weight:700;color:var(--forest)}
+  .what{color:var(--olive);font-size:12px;white-space:normal;max-width:230px;display:inline-block}
+
+  /* method */
+  .feed{display:grid;gap:9px}
+  .feed .row{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;padding:9px 0;border-bottom:1px solid var(--stone)}
+  .feed .row:last-child{border:0}
+  .pill{font-size:9.5px;font-weight:800;letter-spacing:.05em;padding:3px 8px;border-radius:99px;flex:none;margin-top:1px}
+  .pill.live{background:#e4efe6;color:var(--good)} .pill.partial{background:#f3ebdc;color:var(--warn)}
+  .insight{background:#eef3ee;border:1px solid #d8e6db;border-radius:11px;padding:13px 15px;font-size:13.5px;color:#33533f;margin-top:16px;display:flex;gap:9px}
+  footer{padding:26px 0;color:var(--muted);font-size:12px;text-align:center}
+  @media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+  @media(max-width:560px){.hero h1{font-size:26px}.donut{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
-<header>
-  <h1>CBD Creative Asset Tracker</h1>
-  <span class="sub">June 2026 · aired-link views &amp; engagement</span>
-  <span class="sub" id="updated" style="margin-left:auto"></span>
-</header>
+<nav><div class="wrap">
+  <span class="brand">CoBa's Daughter</span>
+  <span class="links">
+    <a href="#overview">Overview</a>
+    <a href="#platforms">Platforms</a>
+    <a href="#top">Top performers</a>
+    <a href="#log">Asset log</a>
+    <a href="#method">Data &amp; method</a>
+  </span>
+  <span class="upd" id="updated"></span>
+</div></nav>
 
 <div class="wrap">
-  <div class="cards" id="cards"></div>
-  <div class="chartbox"><canvas id="trend"></canvas></div>
-
-  <div class="toolbar">
-    <span class="chip on" data-plat="all">All</span>
-    <span class="chip" data-plat="tiktok"><span class="dot" style="background:var(--tk)"></span>TikTok</span>
-    <span class="chip" data-plat="instagram"><span class="dot" style="background:var(--ig)"></span>Instagram</span>
-    <span class="chip" data-plat="facebook"><span class="dot" style="background:var(--fb)"></span>Facebook</span>
-    <input class="search" id="search" placeholder="Search asset / creator / product…">
-    <span class="sub" id="rowcount" style="margin-left:auto"></span>
-  </div>
-
-  <div class="tablewrap">
-    <table id="tbl">
-      <thead><tr>
-        <th data-k="asset_id">Asset ID</th>
-        <th data-k="product">Product</th>
-        <th data-k="platform">Platform</th>
-        <th data-k="uploader">Creator</th>
-        <th class="num" data-k="views">Views</th>
-        <th class="num" data-k="likes">Likes</th>
-        <th class="num" data-k="comments">Comments</th>
-        <th class="num" data-k="shares">Shares</th>
-        <th class="num" data-k="er">Eng %</th>
-        <th>Trend</th>
-        <th data-k="aired">Aired</th>
-        <th data-k="pic">PIC</th>
-        <th data-k="status">Status</th>
-        <th>Link</th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-  <div class="foot" id="foot"></div>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="live" id="livestamp">LIVE</div>
+    <div class="eyebrow">Creative Asset Tracker · Official · Month to date</div>
+    <h1>Creative Asset Performance</h1>
+    <p class="lead" id="lead"></p>
+    <div class="summary">
+      <div class="eyebrow">✦ Executive summary</div>
+      <ul id="summary"></ul>
+    </div>
+  </header>
 </div>
 
+<!-- OVERVIEW -->
+<section id="overview"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">01 · Overview</div>
+    <h2>Aired creative this month, at a glance</h2>
+    <p>Every aired link from the Creative Asset Tracker, month-to-date. Views &amp; engagement are pulled per post (TikTok automatically; Instagram from a logged-in session).</p></div>
+  <div class="kpis" id="kpis"></div>
+</div></section>
+
+<!-- PLATFORMS -->
+<section id="platforms"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">02 · By platform &amp; channel</div>
+    <h2>Where the reach lands</h2>
+    <p>Views and engagement split by platform, and the Owned vs Earned channel mix (Owned = Inhouse + Social Boost · Earned = KOL/UGC collab).</p></div>
+  <div class="g3">
+    <div class="card"><h3>Views by platform</h3><div class="sub">Total views per platform, MTD.</div><div class="bars" id="bars-views"></div></div>
+    <div class="card"><h3>Engagement by platform</h3><div class="sub">Likes + comments + shares, MTD.</div><div class="bars" id="bars-eng"></div></div>
+    <div class="card"><h3>Channel mix</h3><div class="sub">Assets aired by channel.</div><div class="donut" id="donut"></div></div>
+  </div>
+</div></section>
+
+<!-- TOP -->
+<section id="top"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">03 · Top performers</div>
+    <h2>What's performing right now</h2>
+    <p>Top aired assets by views this month, split by channel.</p></div>
+  <div style="margin-bottom:8px" class="eyebrow">Owned (Inhouse &amp; Social Boost)</div>
+  <div class="hls" id="top-owned" style="margin-bottom:22px"></div>
+  <div style="margin-bottom:8px" class="eyebrow">Earned (KOL / UGC)</div>
+  <div class="hls" id="top-earned"></div>
+</div></section>
+
+<!-- LOG -->
+<section id="log"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">04 · Live asset log</div>
+    <h2>Every aired asset, ranked by views</h2>
+    <p>Each row is a real, clickable post. Filter, search, or sort any column.</p></div>
+  <div class="toolbar">
+    <span class="chip on" data-plat="all">All platforms</span>
+    <span class="chip" data-plat="tiktok">TikTok</span>
+    <span class="chip" data-plat="instagram">Instagram</span>
+    <span class="chip" data-plat="facebook">Facebook</span>
+    <input class="search" id="search" placeholder="Search creator / concept / asset / campaign…">
+    <span class="muted" id="rowcount" style="margin-left:auto;font-size:12px"></span>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr class="tbl">
+      <th data-k="rank">#</th>
+      <th data-k="platform">Platform</th>
+      <th data-k="channel">Channel</th>
+      <th data-k="creator">Creator</th>
+      <th data-k="what">What</th>
+      <th data-k="campaign">Campaign</th>
+      <th class="num" data-k="views">Views</th>
+      <th class="num" data-k="eng">Eng</th>
+      <th class="num" data-k="er">Eng %</th>
+      <th data-k="trend">Trend</th>
+      <th data-k="aired">Aired</th>
+      <th data-k="status">Status</th>
+    </tr></thead>
+    <tbody class="tbl" id="rows"></tbody>
+  </table></div>
+</div></section>
+
+<!-- DAY BY DAY -->
+<section id="daybyday"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">05 · Day by day</div>
+    <h2>Cumulative reach over time</h2>
+    <p>Total tracked views &amp; engagement, refreshed daily. This chart fills out as the tracker runs each day.</p></div>
+  <div class="card" style="height:300px"><canvas id="trend"></canvas></div>
+</div></section>
+
+<!-- METHOD -->
+<section id="method" style="border:0"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">Data &amp; method</div>
+    <h2>What's live, how it's measured</h2></div>
+  <div class="g2">
+    <div class="card"><h3>Feed coverage</h3><div class="sub">How each link reaches this dashboard.</div>
+      <div class="feed" id="feed"></div></div>
+    <div class="card"><h3>How we measure</h3><div class="sub">Honest, transparent, no invented numbers.</div>
+      <div class="feed">
+        <div class="row"><span class="pill live">VIEWS</span><div><b>Views / impressions</b> — pulled per post via yt-dlp. TikTok photo posts and some Instagram posts can't expose view counts.</div></div>
+        <div class="row"><span class="pill live">ENG</span><div><b>Engagement</b> = likes + comments + shares (TikTok) / likes + comments (Instagram). <b>Eng %</b> = engagement ÷ views.</div></div>
+        <div class="row"><span class="pill partial">IG</span><div><b>Instagram</b> needs a logged-in session and blocks cloud IPs, so it's refreshed from a local machine; <span class="muted">blocked</span> posts keep their last-known value until the next run.</div></div>
+        <div class="row"><span class="pill live">CHANNEL</span><div><b>Owned</b> = Inhouse + Social Boost · <b>Earned</b> = KOL/UGC collab, derived from the tracker's Source Type.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="insight" id="health"></div>
+</div></section>
+
+<div class="wrap"><footer id="foot"></footer></div>
+
 <script>
-const fmt = n => (n===null||n===undefined||n==='') ? '—' : Number(n).toLocaleString('en-US');
-const num = n => (n===null||n===undefined||n==='') ? null : Number(n);
-let DATA = [], FILTER='all', SORT={k:'views',dir:-1}, SEARCH='';
+const PLAT_COLOR={tiktok:'#2c332f',instagram:'#b08968',facebook:'#716a56'};
+const AVA=['#b08968','#716a56','#2c332f','#a67c52','#8a9a7b','#9c6b3f'];
+const num=n=>(n===null||n===undefined||n==='')?null:Number(n);
+function fmtK(n){n=num(n);if(n===null)return'—';if(n>=1e6)return(n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,'')+'m';if(n>=1e3)return(n/1e3).toFixed(n>=1e4?0:1).replace(/\.0$/,'')+'k';return n.toLocaleString('en-US');}
+const full=n=>num(n)===null?'—':Number(n).toLocaleString('en-US');
+let DATA=[],LINKS={},FILTER='all',SEARCH='',SORT={k:'views',dir:-1};
 
-async function getJSON(p){
-  try{ const r = await fetch(p+'?t='+Date.now()); if(!r.ok) return null; return await r.json(); }
-  catch(e){ return null; }
-}
+function engOf(it){const v=(num(it.likes)||0)+(num(it.comments)||0)+(num(it.shares)||0);return (num(it.likes)==null&&num(it.comments)==null&&num(it.shares)==null)?null:v;}
+function erOf(it){const v=num(it.views),e=engOf(it);return(!v||e==null)?null:e/v*100;}
+function meta(it){return LINKS[it.asset_id]||{};}
+function creatorName(it){return it.uploader||meta(it).creator_id||'—';}
+function nameLabel(it){const n=creatorName(it);return /\s|^—$/.test(n)?n:'@'+n;}  // no @ for inhouse labels
+function deltaHTML(h,key){if(!h||h.length<2)return'';const a=h[h.length-2][key],b=h[h.length-1][key];if(a==null||b==null||a===0)return'';const d=(b-a)/a*100;if(Math.abs(d)<0.5)return'';const c=d>0?'up':'down';return ` <span class="delta ${c}">${d>0?'▲':'▼'} ${Math.abs(d).toFixed(0)}%</span>`;}
 
-function er(it){ // engagement rate vs views
-  const v=num(it.views); if(!v) return null;
-  const e=(num(it.likes)||0)+(num(it.comments)||0)+(num(it.shares)||0);
-  return e/v*100;
-}
-
-function sparkline(history){
-  const h=(history||[]).filter(p=>p.views!=null);
-  if(h.length<2) return '<span class="muted">—</span>';
-  const vs=h.map(p=>p.views), mn=Math.min(...vs), mx=Math.max(...vs), rng=(mx-mn)||1;
-  const W=90,H=22, step=W/(vs.length-1);
-  const pts=vs.map((v,i)=>`${(i*step).toFixed(1)},${(H-((v-mn)/rng)*(H-3)-1.5).toFixed(1)}`).join(' ');
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline fill="none" stroke="#6ea8ff" stroke-width="1.5" points="${pts}"/></svg>`;
-}
+async function getJSON(p){try{const r=await fetch(p+'?t='+Date.now());return r.ok?await r.json():null;}catch(e){return null;}}
 
 async function load(){
-  const [links,tk,ig] = await Promise.all([getJSON('data/links.json'),getJSON('data/tiktok.json'),getJSON('data/instagram.json')]);
-  const items=[];
-  if(tk&&tk.items) items.push(...tk.items);
-  if(ig&&ig.items) items.push(...ig.items);
+  const [links,tk,ig]=await Promise.all([getJSON('data/links.json'),getJSON('data/tiktok.json'),getJSON('data/instagram.json')]);
+  LINKS={};(links&&links.assets||[]).forEach(a=>LINKS[a.asset_id]=a);
+  const items=[];if(tk&&tk.items)items.push(...tk.items);if(ig&&ig.items)items.push(...ig.items);
   DATA=items;
-
-  // last-updated line
-  const u=[];
-  if(tk&&tk.updated) u.push('TikTok '+new Date(tk.updated).toLocaleString());
-  if(ig&&ig.updated) u.push('Instagram '+new Date(ig.updated).toLocaleString());
-  document.getElementById('updated').textContent = u.length? 'Updated: '+u.join('  ·  ') : '';
-
-  // summary cards
-  const sum=(k)=>DATA.reduce((a,it)=>a+(num(it[k])||0),0);
-  const okc=DATA.filter(i=>i.status==='ok').length;
-  const cards=[
-    ['Assets tracked', DATA.length, ''],
-    ['Total views', fmt(sum('views')), ''],
-    ['Total likes', fmt(sum('likes')), ''],
-    ['Total comments', fmt(sum('comments')), ''],
-    ['Total shares', fmt(sum('shares')), ''],
-    ['Links OK', okc+' / '+DATA.length, ''],
-  ];
-  document.getElementById('cards').innerHTML = cards.map(c=>`<div class="card"><div class="k">${c[0]}</div><div class="v">${c[1]} <small>${c[2]}</small></div></div>`).join('');
-
-  buildTrend();
+  const u=[];if(tk&&tk.updated)u.push('TikTok '+new Date(tk.updated).toLocaleDateString());if(ig&&ig.updated)u.push('IG '+new Date(ig.updated).toLocaleDateString());
+  document.getElementById('updated').innerHTML=(links?('Source: Creative Asset Tracker · '+(links.count||DATA.length)+' assets<br>'):'')+(u.length?'Updated '+u.join(' · '):'');
+  document.getElementById('livestamp').textContent='LIVE · '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
   render();
 }
 
-function buildTrend(){
-  // aggregate views/engagement by date across all items' history
-  const byDate={};
-  DATA.forEach(it=>(it.history||[]).forEach(p=>{
-    if(!byDate[p.t]) byDate[p.t]={v:0,e:0};
-    byDate[p.t].v+=(p.views||0);
-    byDate[p.t].e+=(p.likes||0)+(p.comments||0)+(p.shares||0);
-  }));
-  const dates=Object.keys(byDate).sort();
-  const ctx=document.getElementById('trend');
-  if(window._chart) window._chart.destroy();
-  window._chart=new Chart(ctx,{type:'line',
-    data:{labels:dates,datasets:[
-      {label:'Total views',data:dates.map(d=>byDate[d].v),borderColor:'#6ea8ff',backgroundColor:'rgba(110,168,255,.1)',fill:true,tension:.25,yAxisID:'y'},
-      {label:'Total engagement',data:dates.map(d=>byDate[d].e),borderColor:'#e1306c',tension:.25,yAxisID:'y1'}
-    ]},
-    options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b93a3'}}},
-      scales:{x:{ticks:{color:'#8b93a3'},grid:{color:'#222'}},
-        y:{position:'left',ticks:{color:'#8b93a3'},grid:{color:'#222'}},
-        y1:{position:'right',ticks:{color:'#8b93a3'},grid:{display:false}}}}});
-}
-
 function render(){
-  let rows=DATA.filter(it=>FILTER==='all'||it.platform===FILTER);
-  if(SEARCH){const q=SEARCH.toLowerCase();
-    rows=rows.filter(it=>[it.asset_id,it.uploader,it.product,it.pic].some(x=>(x||'').toLowerCase().includes(q)));}
-  rows.sort((a,b)=>{
-    let x=SORT.k==='er'?er(a):a[SORT.k], y=SORT.k==='er'?er(b):b[SORT.k];
-    if(typeof x==='string'||typeof y==='string'){x=(x||'').toString();y=(y||'').toString();return x<y?-SORT.dir:x>y?SORT.dir:0;}
-    x=x==null?-1:x; y=y==null?-1:y; return (x-y)*SORT.dir;
-  });
-  document.getElementById('rows').innerHTML = rows.map(it=>{
-    const e=er(it);
-    return `<tr>
-      <td>${it.asset_id||''}</td>
-      <td class="muted">${it.product||''}</td>
-      <td><span class="pill p-${it.platform}">${it.platform}</span></td>
-      <td>${it.uploader?'@'+it.uploader:'<span class="muted">—</span>'}</td>
-      <td class="num">${fmt(it.views)}</td>
-      <td class="num">${fmt(it.likes)}</td>
-      <td class="num">${fmt(it.comments)}</td>
-      <td class="num">${fmt(it.shares)}</td>
-      <td class="num">${e==null?'—':e.toFixed(1)}</td>
-      <td>${sparkline(it.history)}</td>
-      <td class="muted">${it.aired||''}</td>
-      <td class="muted">${it.pic||''}</td>
-      <td class="s-${it.status}">${it.status||'pending'}</td>
-      <td>${it.url?`<a href="${it.url}" target="_blank" rel="noopener">open ↗</a>`:''}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('rowcount').textContent = rows.length+' rows';
+  const sum=k=>DATA.reduce((a,it)=>a+(num(it[k])||0),0);
+  const totalViews=sum('views'),totalEng=DATA.reduce((a,it)=>a+(engOf(it)||0),0);
+  const okc=DATA.filter(i=>i.status==='ok').length;
+  // engagement rate only over posts that actually report views (apples-to-apples;
+  // Instagram photos/carousels expose engagement but no view count)
+  const viewed=DATA.filter(i=>num(i.views)!=null&&i.views>0);
+  const vSum=viewed.reduce((a,i)=>a+i.views,0);
+  const er=vSum?viewed.reduce((a,i)=>a+(engOf(i)||0),0)/vSum*100:0;
+  const byPlat=p=>DATA.filter(i=>i.platform===p);
+  const tkN=byPlat('tiktok').length,igN=byPlat('instagram').length;
+
+  // LEAD + SUMMARY
+  const owned=DATA.filter(i=>meta(i).channel==='Owned'),earned=DATA.filter(i=>meta(i).channel==='Earned');
+  document.getElementById('lead').innerHTML=`This month: <b>${DATA.length}</b> aired creative assets across Owned &amp; Earned — <b>${fmtK(totalViews)}</b> views and <b>${fmtK(totalEng)}</b> engagements. Below: where it's working, and the work behind it.`;
+  const best=[...DATA].filter(i=>num(i.views)!=null).sort((a,b)=>b.views-a.views)[0];
+  const tkViews=byPlat('tiktok').reduce((a,i)=>a+(num(i.views)||0),0);
+  const igViews=byPlat('instagram').reduce((a,i)=>a+(num(i.views)||0),0);
+  const lead=igViews>tkViews?'Instagram':'TikTok';
+  const sm=[];
+  sm.push(`<b>${DATA.length} assets</b> aired month-to-date — ${tkN} on TikTok, ${igN} on Instagram — generating <b>${fmtK(totalViews)} views</b> and <b>${fmtK(totalEng)} engagements</b> (${er.toFixed(1)}% eng rate).`);
+  if(best)sm.push(`Top performer: <b>${nameLabel(best)}</b> with <b>${fmtK(best.views)} views</b> (${(meta(best).what||best.platform)}) — re-cut this winner for paid.`);
+  sm.push(`Reach is ${lead}-led this month (${fmtK(Math.max(tkViews,igViews))} vs ${fmtK(Math.min(tkViews,igViews))} views); channel mix is ${owned.length} Owned / ${earned.length} Earned.`);
+  const blocked=DATA.filter(i=>i.status==='blocked').length;
+  sm.push(`Link health: <b>${okc}/${DATA.length}</b> returning live metrics${blocked?` — ${blocked} Instagram posts rate-limited this run and will refill next cycle`:''}.`);
+  document.getElementById('summary').innerHTML=sm.map(s=>`<li>${s}</li>`).join('');
+
+  // KPIs
+  const kpis=[
+    ['Assets aired',DATA.length,`${owned.length} owned · ${earned.length} earned`],
+    ['Total views',fmtK(totalViews),'TikTok + Instagram'],
+    ['Total engagement',fmtK(totalEng),'likes · comments · shares'],
+    ['Avg engagement rate',er.toFixed(1)+'%','on posts reporting views'],
+    ['Links returning data',`${okc} / ${DATA.length}`,'live metrics'],
+  ];
+  document.getElementById('kpis').innerHTML=kpis.map(k=>`<div class="kpi"><div class="k">${k[0]}</div><div class="v">${k[1]}</div><div class="tag">${k[2]}</div></div>`).join('');
+
+  // BARS
+  const platStats={};['tiktok','instagram','facebook'].forEach(p=>{const a=byPlat(p);if(a.length)platStats[p]={views:a.reduce((s,i)=>s+(num(i.views)||0),0),eng:a.reduce((s,i)=>s+(engOf(i)||0),0)};});
+  const barRows=(key)=>{const mx=Math.max(1,...Object.values(platStats).map(s=>s[key]));return Object.entries(platStats).sort((a,b)=>b[1][key]-a[1][key]).map(([p,s])=>`<div class="bar"><div class="top"><span style="text-transform:capitalize">${p}</span><b>${fmtK(s[key])}</b></div><div class="track"><div class="fill" style="width:${Math.max(3,s[key]/mx*100)}%;background:${PLAT_COLOR[p]}"></div></div></div>`).join('');};
+  document.getElementById('bars-views').innerHTML=barRows('views');
+  document.getElementById('bars-eng').innerHTML=barRows('eng');
+
+  // DONUT (channel mix)
+  drawDonut([['Owned',owned.length,'#2c332f'],['Earned',earned.length,'#b08968']]);
+
+  // TOP performers
+  const topCards=(arr)=>arr.slice(0,3).map((it,i)=>{const nm=creatorName(it);const c=AVA[(nm.charCodeAt(0)||0)%AVA.length];const e=engOf(it);const hasMetric=num(it.views)!=null||e!=null;const stats=hasMetric?`<b>${fmtK(it.views)}</b> views · <b>${fmtK(e)}</b> eng`:`<span class="muted">metrics ${it.status==='blocked'?'rate-limited':(it.status||'pending')}</span>`;return `<div class="hl"><div class="rank">${i+1}</div><div class="hlthumb" style="background:${c}">${(nm[0]||'?').toUpperCase()}</div><div><div class="who">${nameLabel(it)} <span class="badge b-${it.platform}" style="font-size:9px">${it.platform}</span></div><div class="what">${meta(it).what||'—'}</div><div class="stats">${stats}${it.url?` · <a href="${it.url}" target="_blank">view ↗</a>`:''}</div></div></div>`;}).join('')||'<div class="muted" style="font-size:13px">No assets in this channel yet.</div>';
+  // rank by views, then engagement; assets with no metric yet sort last but still show
+  const byPerf=arr=>[...arr].sort((a,b)=>((num(b.views)||0)-(num(a.views)||0))||((engOf(b)||0)-(engOf(a)||0)));
+  document.getElementById('top-owned').innerHTML=topCards(byPerf(owned));
+  document.getElementById('top-earned').innerHTML=topCards(byPerf(earned));
+
+  // FEED coverage
+  document.getElementById('feed').innerHTML=[
+    ['live','TikTok','Cloud (GitHub Actions) · scraped daily, no machine needed · '+tkN+' assets'],
+    ['partial','Instagram','Local machine (logged-in Chrome) · pushed daily · '+igN+' assets'],
+    ['live','Source','Creative Asset Tracker (Official) · Google Sheet · month-to-date June 2026'],
+  ].map(r=>`<div class="row"><span class="pill ${r[0]}">${r[0]==='live'?'LIVE':'LOCAL'}</span><div><b>${r[1]}</b> — ${r[2]}</div></div>`).join('');
+  document.getElementById('health').innerHTML=`💡 <div><b>${okc} of ${DATA.length}</b> links are returning live metrics. ${blocked?`${blocked} Instagram posts were rate-limited on the last run — they keep their previous numbers and refill on the next daily refresh.`:'All tracked links responded on the last run.'} TikTok photo posts can't expose view counts and show as <b>error</b>.</div>`;
+  document.getElementById('foot').innerHTML=`CoBa's Daughter · Creative Asset Performance · TikTok auto-refreshed daily via GitHub Actions · Instagram pushed from local · Confidential`;
+
+  buildTrend();
+  renderTable();
 }
 
-document.querySelectorAll('.chip[data-plat]').forEach(c=>c.onclick=()=>{
-  document.querySelectorAll('.chip[data-plat]').forEach(x=>x.classList.remove('on'));
-  c.classList.add('on'); FILTER=c.dataset.plat; render();
-});
-document.getElementById('search').oninput=e=>{SEARCH=e.target.value;render();};
-document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{
-  const k=th.dataset.k; SORT.dir = (SORT.k===k)? -SORT.dir : -1; SORT.k=k; render();
-});
-document.getElementById('foot').textContent='CBD Creative Asset Tracker · TikTok auto-updated daily via GitHub Actions · Instagram pushed from local · auto-refreshes every 5 min';
+function drawDonut(parts){
+  const total=parts.reduce((a,p)=>a+p[1],0)||1;let off=0;const R=52,C=2*Math.PI*R;
+  const segs=parts.map(p=>{const len=p[1]/total*C;const s=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${p[2]}" stroke-width="16" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return s;}).join('');
+  const legend=parts.map(p=>`<div class="row"><span class="dot" style="background:${p[2]}"></span>${p[0]} <b style="margin-left:auto;color:var(--forest)">${p[1]}</b></div>`).join('');
+  document.getElementById('donut').innerHTML=`<svg width="140" height="140" viewBox="0 0 140 140">${segs}<text x="70" y="66" text-anchor="middle" font-size="26" font-weight="800" fill="#2c332f">${total}</text><text x="70" y="86" text-anchor="middle" font-size="10" fill="#8f897b">ASSETS</text></svg><div class="legend">${legend}</div>`;
+}
 
-load();
-setInterval(load, 5*60*1000); // re-pull data every 5 min so an open tab stays fresh
+function sparkline(h){h=(h||[]).filter(p=>p.views!=null);if(h.length<2)return'<span class="muted">—</span>';const v=h.map(p=>p.views),mn=Math.min(...v),mx=Math.max(...v),rng=(mx-mn)||1,W=74,H=20,st=W/(v.length-1);const pts=v.map((x,i)=>`${(i*st).toFixed(1)},${(H-((x-mn)/rng)*(H-3)-1.5).toFixed(1)}`).join(' ');return `<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline fill="none" stroke="#a67c52" stroke-width="1.6" points="${pts}"/></svg>`;}
+
+function renderTable(){
+  let rows=DATA.filter(it=>FILTER==='all'||it.platform===FILTER);
+  if(SEARCH){const q=SEARCH.toLowerCase();rows=rows.filter(it=>[creatorName(it),meta(it).what,it.asset_id,meta(it).campaign,meta(it).channel].some(x=>(x||'').toLowerCase().includes(q)));}
+  rows.sort((a,b)=>{let x,y;if(SORT.k==='eng'){x=engOf(a);y=engOf(b);}else if(SORT.k==='er'){x=erOf(a);y=erOf(b);}else if(['channel','what','campaign','creator'].includes(SORT.k)){x=(SORT.k==='creator'?creatorName(a):meta(a)[SORT.k]||'');y=(SORT.k==='creator'?creatorName(b):meta(b)[SORT.k]||'');return x<y?-SORT.dir:x>y?SORT.dir:0;}else{x=a[SORT.k];y=b[SORT.k];}x=x==null?-1:x;y=y==null?-1:y;if(typeof x==='string')return x<y?-SORT.dir:x>y?SORT.dir:0;return(x-y)*SORT.dir;});
+  document.getElementById('rows').innerHTML=rows.map((it,i)=>{const m=meta(it),e=engOf(it),r=erOf(it);return `<tr>
+    <td class="muted">${i+1}</td>
+    <td><span class="badge b-${it.platform}">${it.platform}</span></td>
+    <td><span class="ch">${m.channel||'—'}</span></td>
+    <td>${it.url?`<a href="${it.url}" target="_blank" class="creator">${nameLabel(it)}</a>`:`<span class="creator">${nameLabel(it)}</span>`}</td>
+    <td><span class="what">${m.what||'—'}</span></td>
+    <td class="muted">${m.campaign||'—'}</td>
+    <td class="num">${fmtK(it.views)}${deltaHTML(it.history,'views')}</td>
+    <td class="num">${fmtK(e)}</td>
+    <td class="num">${r==null?'—':r.toFixed(1)}</td>
+    <td>${sparkline(it.history)}</td>
+    <td class="muted">${m.aired||it.aired||'—'}</td>
+    <td><span class="st ${it.status}">${it.status||'pending'}</span></td>
+  </tr>`;}).join('');
+  document.getElementById('rowcount').textContent=rows.length+' assets';
+}
+
+function buildTrend(){
+  const byDate={};DATA.forEach(it=>(it.history||[]).forEach(p=>{if(!byDate[p.t])byDate[p.t]={v:0,e:0};byDate[p.t].v+=(p.views||0);byDate[p.t].e+=(p.likes||0)+(p.comments||0)+(p.shares||0);}));
+  const dates=Object.keys(byDate).sort();const ctx=document.getElementById('trend');if(window._c)window._c.destroy();
+  window._c=new Chart(ctx,{type:'line',data:{labels:dates,datasets:[
+    {label:'Total views',data:dates.map(d=>byDate[d].v),borderColor:'#a67c52',backgroundColor:'rgba(176,137,104,.12)',fill:true,tension:.25,yAxisID:'y'},
+    {label:'Total engagement',data:dates.map(d=>byDate[d].e),borderColor:'#2c332f',tension:.25,yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:'#716a56',font:{family:'Plus Jakarta Sans',weight:'600'}}}},
+      scales:{x:{ticks:{color:'#8f897b'},grid:{color:'#efecec'}},y:{position:'left',ticks:{color:'#8f897b'},grid:{color:'#efecec'}},y1:{position:'right',ticks:{color:'#8f897b'},grid:{display:false}}}}});
+}
+
+document.querySelectorAll('.chip[data-plat]').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip[data-plat]').forEach(x=>x.classList.remove('on'));c.classList.add('on');FILTER=c.dataset.plat;renderTable();});
+document.getElementById('search').oninput=e=>{SEARCH=e.target.value;renderTable();};
+document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;SORT.dir=(SORT.k===k)?-SORT.dir:-1;SORT.k=k;renderTable();});
+load();setInterval(load,5*60*1000);
 </script>
 </body>
 </html>

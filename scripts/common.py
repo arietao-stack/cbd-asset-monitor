@@ -13,14 +13,27 @@ COL = {
     "product": 6,        # G  Product
     "aired": 8,          # I  Aired Date
     "month_year": 9,     # J  Month & Year
+    "funnel": 11,        # L  Funnel Stage (TOF/MOF/BOF)
+    "angle": 12,         # M  Angle
+    "concept": 13,       # N  Concept
+    "campaign": 15,      # P  Campaign Type
+    "source_type": 16,   # Q  Source Type (Inhouse / Social Boost / KOL-UGC)
     "creator_link": 18,  # S  Creator Link
     "creator_id": 19,    # T  Creator ID
+    "summary": 20,       # U  Summary
     "instagram": 27,     # AB Instagram Link
     "tiktok": 29,        # AD TikTok Link
     "facebook": 31,      # AF Facebook Link
     "youtube": 32,       # AG YouTube Link
     "pic": 42,           # AQ PIC
 }
+
+# Source Type -> brand-channel bucket (mirrors the company's Owned/Earned framing).
+def channel_of(source_type):
+    s = (source_type or "").lower()
+    if "kol" in s or "ugc" in s or "collab" in s:
+        return "Earned"
+    return "Owned"  # Inhouse, Social Boost
 
 # Which Month & Year values to track. Add more strings to widen the scope.
 TARGET_MONTHS = ["2026_06"]
@@ -46,6 +59,19 @@ def save_json(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
+
+
+def normalize_date(v):
+    """Return YYYY-MM-DD from the sheet's varied date formats, else ''."""
+    s = str(v or "").strip()
+    if not s:
+        return ""
+    for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%B-%Y", "%m/%d/%Y", "%d/%m/%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(s[:11], fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return s[:10]
 
 
 def is_url(v):

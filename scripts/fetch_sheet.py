@@ -9,7 +9,8 @@ import os
 import sys
 import urllib.request
 
-from common import COL, TARGET_MONTHS, DATA_DIR, clean_url, is_url, is_ig_permalink, now_iso, save_json
+from common import (COL, TARGET_MONTHS, DATA_DIR, channel_of, clean_url, is_url,
+                    is_ig_permalink, normalize_date, now_iso, save_json)
 
 SHEET_ID = "1pjY79ldEs08y1Yict2XUWMi2X9r4d7Y8WWQJGmAueWs"
 GID = "1941056735"  # Creative Asset Tracker (Official)
@@ -42,12 +43,24 @@ def main():
             continue
         ig = clean_url(cell(row, "instagram"))
         cl = clean_url(cell(row, "creator_link"))
+        source_type = clean_url(cell(row, "source_type"))
+        concept = clean_url(cell(row, "concept"))
+        angle = clean_url(cell(row, "angle"))
+        # "What" = a human descriptor of the asset, like the reference dashboard.
+        what = " · ".join([x for x in (concept, angle) if x]) or clean_url(cell(row, "summary"))
         assets.append({
             "asset_id": asset_id,
             "product": clean_url(cell(row, "product")),
-            "aired": clean_url(cell(row, "aired"))[:10],
+            "aired": normalize_date(cell(row, "aired")),
             "pic": clean_url(cell(row, "pic")),
             "creator_id": clean_url(cell(row, "creator_id")),
+            "source_type": source_type,
+            "channel": channel_of(source_type),
+            "funnel": clean_url(cell(row, "funnel")),
+            "campaign": clean_url(cell(row, "campaign")),
+            "angle": angle,
+            "concept": concept,
+            "what": what,
             "tiktok": clean_url(cell(row, "tiktok")) if is_url(cell(row, "tiktok")) else "",
             "instagram": ig if is_url(ig) else "",
             # creator_link is used as an extra IG source only when it is a post permalink
