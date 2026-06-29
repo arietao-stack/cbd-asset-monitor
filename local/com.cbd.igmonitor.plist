@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Optional: auto-run the Instagram update every day at 08:05 (only fires when the Mac is awake).
+     Install:  cp local/com.cbd.igmonitor.plist ~/Library/LaunchAgents/
+               launchctl load ~/Library/LaunchAgents/com.cbd.igmonitor.plist
+     Note: the repo lives in ~/cbd-asset-monitor (NOT Google Drive), so launchd can read it. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cbd.igmonitor</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>--login</string>
+    <string>-c</string>
+    <string>bash "$HOME/cbd-asset-monitor/local/update_instagram.sh" &gt;&gt; "$HOME/cbd-asset-monitor/local/ig.log" 2&gt;&amp;1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>8</integer>
+    <key>Minute</key><integer>5</integer>
+  </dict>
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

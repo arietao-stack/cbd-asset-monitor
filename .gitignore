@@ -1,0 +1,7 @@
+__pycache__/
+.tools/
+*.pyc
+local/ig.log
+.DS_Store
+*.cookies.txt
+instagram_cookies.txt

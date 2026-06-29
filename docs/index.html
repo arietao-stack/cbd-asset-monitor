@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBD Creative Asset Tracker — June 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --line:#262b34; --txt:#e8ebf0; --mut:#8b93a3;
+    --tk:#25f4ee; --ig:#e1306c; --fb:#1877f2; --ok:#3ddc84; --bad:#ff5c5c; --warn:#ffb020;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:14px}
+  h1{font-size:19px;margin:0;font-weight:650}
+  .sub{color:var(--mut);font-size:12.5px}
+  .wrap{padding:20px 26px;max-width:1500px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .card .k{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:24px;font-weight:680;margin-top:4px}
+  .card .v small{font-size:13px;color:var(--mut);font-weight:500}
+  .chartbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px;height:260px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+  .chip{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:12.5px}
+  .chip.on{background:#2a3340;border-color:#3a4656}
+  input.search{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:7px 12px;border-radius:8px;min-width:200px;outline:none}
+  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:12.8px}
+  th,td{padding:9px 11px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+  th{position:sticky;top:0;background:#1d212a;color:var(--mut);font-weight:600;cursor:pointer;user-select:none}
+  th:hover{color:var(--txt)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:hover td{background:#1c212b}
+  .pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
+  .p-tiktok{color:var(--tk);background:rgba(37,244,238,.12)}
+  .p-instagram{color:var(--ig);background:rgba(225,48,108,.14)}
+  .p-facebook{color:var(--fb);background:rgba(24,119,242,.14)}
+  .s-ok{color:var(--ok)} .s-dead,.s-error,.s-blocked{color:var(--bad)} .s-private,.s-pending{color:var(--warn)}
+  a{color:#6ea8ff;text-decoration:none} a:hover{text-decoration:underline}
+  .muted{color:var(--mut)}
+  .spark{height:22px;width:90px}
+  .foot{color:var(--mut);font-size:11.5px;margin-top:14px;text-align:center}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+<header>
+  <h1>CBD Creative Asset Tracker</h1>
+  <span class="sub">June 2026 · aired-link views &amp; engagement</span>
+  <span class="sub" id="updated" style="margin-left:auto"></span>
+</header>
+
+<div class="wrap">
+  <div class="cards" id="cards"></div>
+  <div class="chartbox"><canvas id="trend"></canvas></div>
+
+  <div class="toolbar">
+    <span class="chip on" data-plat="all">All</span>
+    <span class="chip" data-plat="tiktok"><span class="dot" style="background:var(--tk)"></span>TikTok</span>
+    <span class="chip" data-plat="instagram"><span class="dot" style="background:var(--ig)"></span>Instagram</span>
+    <span class="chip" data-plat="facebook"><span class="dot" style="background:var(--fb)"></span>Facebook</span>
+    <input class="search" id="search" placeholder="Search asset / creator / product…">
+    <span class="sub" id="rowcount" style="margin-left:auto"></span>
+  </div>
+
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead><tr>
+        <th data-k="asset_id">Asset ID</th>
+        <th data-k="product">Product</th>
+        <th data-k="platform">Platform</th>
+        <th data-k="uploader">Creator</th>
+        <th class="num" data-k="views">Views</th>
+        <th class="num" data-k="likes">Likes</th>
+        <th class="num" data-k="comments">Comments</th>
+        <th class="num" data-k="shares">Shares</th>
+        <th class="num" data-k="er">Eng %</th>
+        <th>Trend</th>
+        <th data-k="aired">Aired</th>
+        <th data-k="pic">PIC</th>
+        <th data-k="status">Status</th>
+        <th>Link</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+const fmt = n => (n===null||n===undefined||n==='') ? '—' : Number(n).toLocaleString('en-US');
+const num = n => (n===null||n===undefined||n==='') ? null : Number(n);
+let DATA = [], FILTER='all', SORT={k:'views',dir:-1}, SEARCH='';
+
+async function getJSON(p){
+  try{ const r = await fetch(p+'?t='+Date.now()); if(!r.ok) return null; return await r.json(); }
+  catch(e){ return null; }
+}
+
+function er(it){ // engagement rate vs views
+  const v=num(it.views); if(!v) return null;
+  const e=(num(it.likes)||0)+(num(it.comments)||0)+(num(it.shares)||0);
+  return e/v*100;
+}
+
+function sparkline(history){
+  const h=(history||[]).filter(p=>p.views!=null);
+  if(h.length<2) return '<span class="muted">—</span>';
+  const vs=h.map(p=>p.views), mn=Math.min(...vs), mx=Math.max(...vs), rng=(mx-mn)||1;
+  const W=90,H=22, step=W/(vs.length-1);
+  const pts=vs.map((v,i)=>`${(i*step).toFixed(1)},${(H-((v-mn)/rng)*(H-3)-1.5).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline fill="none" stroke="#6ea8ff" stroke-width="1.5" points="${pts}"/></svg>`;
+}
+
+async function load(){
+  const [links,tk,ig] = await Promise.all([getJSON('data/links.json'),getJSON('data/tiktok.json'),getJSON('data/instagram.json')]);
+  const items=[];
+  if(tk&&tk.items) items.push(...tk.items);
+  if(ig&&ig.items) items.push(...ig.items);
+  DATA=items;
+
+  // last-updated line
+  const u=[];
+  if(tk&&tk.updated) u.push('TikTok '+new Date(tk.updated).toLocaleString());
+  if(ig&&ig.updated) u.push('Instagram '+new Date(ig.updated).toLocaleString());
+  document.getElementById('updated').textContent = u.length? 'Updated: '+u.join('  ·  ') : '';
+
+  // summary cards
+  const sum=(k)=>DATA.reduce((a,it)=>a+(num(it[k])||0),0);
+  const okc=DATA.filter(i=>i.status==='ok').length;
+  const cards=[
+    ['Assets tracked', DATA.length, ''],
+    ['Total views', fmt(sum('views')), ''],
+    ['Total likes', fmt(sum('likes')), ''],
+    ['Total comments', fmt(sum('comments')), ''],
+    ['Total shares', fmt(sum('shares')), ''],
+    ['Links OK', okc+' / '+DATA.length, ''],
+  ];
+  document.getElementById('cards').innerHTML = cards.map(c=>`<div class="card"><div class="k">${c[0]}</div><div class="v">${c[1]} <small>${c[2]}</small></div></div>`).join('');
+
+  buildTrend();
+  render();
+}
+
+function buildTrend(){
+  // aggregate views/engagement by date across all items' history
+  const byDate={};
+  DATA.forEach(it=>(it.history||[]).forEach(p=>{
+    if(!byDate[p.t]) byDate[p.t]={v:0,e:0};
+    byDate[p.t].v+=(p.views||0);
+    byDate[p.t].e+=(p.likes||0)+(p.comments||0)+(p.shares||0);
+  }));
+  const dates=Object.keys(byDate).sort();
+  const ctx=document.getElementById('trend');
+  if(window._chart) window._chart.destroy();
+  window._chart=new Chart(ctx,{type:'line',
+    data:{labels:dates,datasets:[
+      {label:'Total views',data:dates.map(d=>byDate[d].v),borderColor:'#6ea8ff',backgroundColor:'rgba(110,168,255,.1)',fill:true,tension:.25,yAxisID:'y'},
+      {label:'Total engagement',data:dates.map(d=>byDate[d].e),borderColor:'#e1306c',tension:.25,yAxisID:'y1'}
+    ]},
+    options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b93a3'}}},
+      scales:{x:{ticks:{color:'#8b93a3'},grid:{color:'#222'}},
+        y:{position:'left',ticks:{color:'#8b93a3'},grid:{color:'#222'}},
+        y1:{position:'right',ticks:{color:'#8b93a3'},grid:{display:false}}}}});
+}
+
+function render(){
+  let rows=DATA.filter(it=>FILTER==='all'||it.platform===FILTER);
+  if(SEARCH){const q=SEARCH.toLowerCase();
+    rows=rows.filter(it=>[it.asset_id,it.uploader,it.product,it.pic].some(x=>(x||'').toLowerCase().includes(q)));}
+  rows.sort((a,b)=>{
+    let x=SORT.k==='er'?er(a):a[SORT.k], y=SORT.k==='er'?er(b):b[SORT.k];
+    if(typeof x==='string'||typeof y==='string'){x=(x||'').toString();y=(y||'').toString();return x<y?-SORT.dir:x>y?SORT.dir:0;}
+    x=x==null?-1:x; y=y==null?-1:y; return (x-y)*SORT.dir;
+  });
+  document.getElementById('rows').innerHTML = rows.map(it=>{
+    const e=er(it);
+    return `<tr>
+      <td>${it.asset_id||''}</td>
+      <td class="muted">${it.product||''}</td>
+      <td><span class="pill p-${it.platform}">${it.platform}</span></td>
+      <td>${it.uploader?'@'+it.uploader:'<span class="muted">—</span>'}</td>
+      <td class="num">${fmt(it.views)}</td>
+      <td class="num">${fmt(it.likes)}</td>
+      <td class="num">${fmt(it.comments)}</td>
+      <td class="num">${fmt(it.shares)}</td>
+      <td class="num">${e==null?'—':e.toFixed(1)}</td>
+      <td>${sparkline(it.history)}</td>
+      <td class="muted">${it.aired||''}</td>
+      <td class="muted">${it.pic||''}</td>
+      <td class="s-${it.status}">${it.status||'pending'}</td>
+      <td>${it.url?`<a href="${it.url}" target="_blank" rel="noopener">open ↗</a>`:''}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rowcount').textContent = rows.length+' rows';
+}
+
+document.querySelectorAll('.chip[data-plat]').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.chip[data-plat]').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); FILTER=c.dataset.plat; render();
+});
+document.getElementById('search').oninput=e=>{SEARCH=e.target.value;render();};
+document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{
+  const k=th.dataset.k; SORT.dir = (SORT.k===k)? -SORT.dir : -1; SORT.k=k; render();
+});
+document.getElementById('foot').textContent='CBD Creative Asset Tracker · TikTok auto-updated daily via GitHub Actions · Instagram pushed from local · auto-refreshes every 5 min';
+
+load();
+setInterval(load, 5*60*1000); // re-pull data every 5 min so an open tab stays fresh
+</script>
+</body>
+</html>
