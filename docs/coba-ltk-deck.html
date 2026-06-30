@@ -199,7 +199,21 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 #clist .grp{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:14px 0 6px}
 #clist .ci{background:var(--card);border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:.2s}
 #clist .ci:hover{border-color:var(--gold)}#clist .ci.res{opacity:.55}
-#clist .ci .nm{font-size:12px;font-weight:700}#clist .ci .tx{font-size:12.5px;color:var(--bone-dim);font-weight:300;margin-top:2px}
+#clist .ci{cursor:default}
+#clist .ci .nm{font-size:12px;font-weight:700}#clist .ci .tx{font-size:12.5px;color:var(--bone-dim);font-weight:300;margin-top:3px;cursor:pointer}#clist .ci .tx:hover{color:var(--bone)}
+#clist .ci .head2{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--bone)}
+#clist .ci .head2 time{color:var(--mute);font-weight:400;font-size:10px}
+#clist .ci .head2 .go{margin-left:auto;color:var(--mute);cursor:pointer;font-size:13px;font-weight:400}
+#clist .ci .head2 .go:hover{color:var(--gold)}
+#clist .ci .rep{font-size:11.5px;color:var(--bone-dim);font-weight:300;margin-top:5px;padding-left:9px;border-left:1px solid var(--line-2)}
+#clist .ci .rep b{color:var(--bone);font-weight:600}
+#clist .ci .acts{display:flex;gap:15px;margin-top:9px}
+#clist .ci .acts a{font-size:11px;font-weight:700;color:var(--mute);cursor:pointer}
+#clist .ci .acts a:hover{color:var(--gold)}#clist .ci .acts a.del:hover{color:#d98a6a}
+#clist .ci .rbox{margin-top:8px;display:none}#clist .ci .rbox.show{display:block}
+#clist .ci .rbox textarea{width:100%;background:var(--noir-2);border:1px solid var(--line);border-radius:8px;color:var(--bone);font-family:inherit;font-size:12.5px;padding:8px 10px;outline:none;resize:vertical;min-height:44px}
+#clist .ci .rbox textarea:focus{border-color:var(--gold)}
+#clist .ci .rbox button{margin-top:6px;background:linear-gradient(90deg,var(--gold),var(--clay));color:#1a140d;border:none;border-radius:20px;padding:6px 15px;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
 #nameModal{position:fixed;inset:0;z-index:130;background:rgba(10,7,4,.74);display:none;place-items:center}
 #nameModal.show{display:grid}
 #nameModal .box{background:var(--noir-2);border:1px solid var(--line);border-radius:18px;padding:30px;width:360px;max-width:90vw;text-align:center}
@@ -598,11 +612,30 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     for(let s=0;s<slides.length;s++){
       const cs=CM.filter(c=>c.slide===s);if(!cs.length)continue;
       html+=`<div class="grp">Slide ${s+1} — ${SLIDE_TITLES[s]||''}</div>`;
-      cs.forEach(c=>{const rep=c.replies&&c.replies.length?` · ${c.replies.length} repl${c.replies.length>1?'ies':'y'}`:'';
-        html+=`<div class="ci${c.resolved?' res':''}" data-id="${c.id}"><div class="nm"><span style="display:inline-grid;width:18px;height:18px;border-radius:50%;background:${colorFor(c.author)};color:#1a140d;font-size:9px;font-weight:800;place-items:center;vertical-align:middle;margin-right:6px">${initials(c.author)}</span>${esc(c.author)}${rep}</div><div class="tx">${esc(c.text)}</div></div>`;});
+      cs.forEach(c=>{
+        const av=`<span style="display:inline-grid;width:18px;height:18px;border-radius:50%;background:${colorFor(c.author)};color:#1a140d;font-size:9px;font-weight:800;place-items:center">${initials(c.author)}</span>`;
+        const reps=(c.replies||[]).map(r=>`<div class="rep"><b>${esc(r.author)}:</b> ${esc(r.text)}</div>`).join('');
+        html+=`<div class="ci${c.resolved?' res':''}" data-id="${c.id}">
+          <div class="head2">${av}${esc(c.author)} <time>${fmtTime(c.ts)}</time><span class="go" data-act="go" title="Go to slide">↗</span></div>
+          <div class="tx">${esc(c.text)}</div>${reps}
+          <div class="acts"><a data-act="reply">Reply</a><a data-act="resolve">${c.resolved?'Reopen':'Resolve ✓'}</a>${c.author===me?'<a class="del" data-act="del">Delete</a>':''}</div>
+          <div class="rbox"><textarea placeholder="Reply…"></textarea><button data-act="send">Reply</button></div>
+        </div>`;});
     }
     clist.innerHTML=html;
-    clist.querySelectorAll('.ci').forEach(el=>el.onclick=()=>{const id=el.dataset.id,c=comments.find(x=>x.id===id);panel.classList.remove('open');back.classList.remove('open');if(c){go(c.slide);setTimeout(()=>openThread(id),440);}});
+    clist.querySelectorAll('.ci').forEach(el=>{
+      const id=el.dataset.id,c=comments.find(x=>x.id===id);if(!c)return;
+      const goTo=()=>{panel.classList.remove('open');back.classList.remove('open');go(c.slide);setTimeout(()=>openThread(id,true),440);};
+      const tx=el.querySelector('.tx');if(tx)tx.onclick=goTo;
+      el.querySelectorAll('[data-act]').forEach(a=>a.addEventListener('click',ev=>{
+        ev.stopPropagation();const act=a.dataset.act;
+        if(act==='go')goTo();
+        else if(act==='reply'){const rb=el.querySelector('.rbox');rb.classList.toggle('show');if(rb.classList.contains('show')){const t=rb.querySelector('textarea');setTimeout(()=>t&&t.focus(),30);}}
+        else if(act==='send')ensure(()=>{const t=el.querySelector('.rbox textarea'),v=t?t.value.trim():'';if(!v)return;c.replies=c.replies||[];c.replies.push({author:me,text:v,ts:Date.now()});persist('update',c);});
+        else if(act==='resolve'){c.resolved=!c.resolved;persist('update',c);}
+        else if(act==='del')persist('remove',c);
+      }));
+    });
   }
 
   // ---- tools ----
