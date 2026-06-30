@@ -174,8 +174,8 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .pin{position:absolute;z-index:6;width:30px;height:30px;border-radius:50% 50% 50% 3px;transform:translate(-3px,-30px);color:#1a140d;display:grid;place-items:center;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px -4px rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.55);transition:transform .15s}
 .pin:hover{transform:translate(-3px,-30px) scale(1.14)}
 .pin.resolved{opacity:.5}
-#pop{position:fixed;z-index:120;width:300px;max-width:92vw;background:var(--noir-2);border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 70px -24px #000;padding:15px;display:none}
-#pop.show{display:block}
+#pop{position:fixed;z-index:120;width:300px;max-width:92vw;background:var(--noir-2);border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 70px -24px #000;padding:15px;opacity:0;visibility:hidden;transform:translateY(8px) scale(.98);transform-origin:top left;transition:opacity .16s ease,transform .18s cubic-bezier(.16,1,.3,1)}
+#pop.show{opacity:1;visibility:visible;transform:none}
 #pop .ctx{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px}
 #pop .meta-act{display:flex;gap:10px}#pop .meta-act a{color:var(--mute);cursor:pointer;font-weight:600}#pop .meta-act a:hover{color:var(--gold)}
 .cmt{display:flex;gap:9px;padding:8px 0;border-top:1px solid var(--line-2)}.cmt:first-of-type{border-top:none}
@@ -189,7 +189,8 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 #pop .row button{border:none;border-radius:30px;padding:8px 15px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer}
 .btn-send{background:linear-gradient(90deg,var(--gold),var(--clay));color:#1a140d}
 .btn-ghost{background:none;color:var(--bone-dim);border:1px solid var(--line)!important}
-#cback{position:fixed;inset:0;z-index:105;background:rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:.3s}#cback.open{opacity:1;visibility:visible}
+#cback{position:fixed;inset:0;z-index:105;background:linear-gradient(90deg,transparent 60%,rgba(0,0,0,.25));opacity:0;visibility:hidden;transition:.3s;pointer-events:none}#cback.open{opacity:1;visibility:visible}
+.pin{transition:transform .15s ease,filter .15s ease}.pin:hover{filter:brightness(1.12)}
 #cpanel{position:fixed;right:0;top:0;bottom:0;width:360px;max-width:92vw;z-index:110;background:var(--noir-2);border-left:1px solid var(--line);box-shadow:-30px 0 80px -30px #000;transform:translateX(102%);transition:transform .42s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;padding:22px}
 #cpanel.open{transform:none}
 #cpanel h3{font-family:'Fraunces',serif;font-size:21px;font-weight:500}
@@ -396,7 +397,8 @@ svg.ov{position:absolute;inset:0;z-index:4;pointer-events:none}
   <button class="tool" id="tComment" title="Comment pin (C)">＋</button>
   <button class="tool" id="tHl" title="Highlighter (H)">🖍</button>
   <button class="tool" id="tPen" title="Draw (P)">✎</button>
-  <button class="tool" id="tErase" title="Eraser (E)">⌫</button>
+  <button class="tool" id="tErase" title="Eraser — click a stroke to delete (E)">⌫</button>
+  <button class="tool" id="tClear" title="Clear all drawings on this slide">🗑</button>
   <span class="tdiv"></span>
   <span class="swatch on" data-c="#E0B266" style="background:#E0B266"></span>
   <span class="swatch" data-c="#CC774A" style="background:#CC774A"></span>
@@ -485,12 +487,16 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   const ovOf=i=>slides[i]&&slides[i].querySelector('svg.ov');
 
   let me='';try{me=localStorage.getItem('coba_user')||'';}catch(e){}
-  let comments=[],tool='select',color='#E0B266';
+  let comments=[],tool='select',color='#E0B266',lastSig='';
+  const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length]));
 
   const local={get(){try{return JSON.parse(localStorage.getItem('coba_pins')||'[]');}catch(e){return [];}},set(a){try{localStorage.setItem('coba_pins',JSON.stringify(a));}catch(e){}}};
   async function load(){
-    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();comments=Array.isArray(j)?j:(j.comments||[]);local.set(comments);render();return;}catch(e){}}
-    comments=local.get();render();
+    let data=null;
+    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();data=Array.isArray(j)?j:(j.comments||[]);}catch(e){data=null;}}
+    if(data==null)data=local.get();
+    if(sigOf(data)===lastSig)return;          // unchanged → skip re-render (no flicker)
+    comments=data;local.set(comments);render();
   }
   async function persist(action,c){
     if(action==='remove')comments=comments.filter(x=>x.id!==c.id);
@@ -554,6 +560,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
       }
     });
     cCount.textContent=comOf().filter(c=>!c.resolved).length;
+    lastSig=sigOf(comments);
     renderList();
   }
   function renderList(){
@@ -578,6 +585,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   tools.pen.onclick=()=>ensure(()=>setTool(tool==='pen'?'select':'pen'));
   tools.eraser.onclick=()=>setTool(tool==='eraser'?'select':'eraser');
   document.querySelectorAll('.swatch').forEach(sw=>sw.onclick=()=>{color=sw.dataset.c;document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('on'));sw.classList.add('on');});
+  $('tClear').onclick=()=>{const m=comments.filter(x=>(x.type==='draw'||x.type==='hl')&&x.slide===idx);if(!m.length){return;}if(!confirm('Clear all drawings & highlights on this slide? (comments stay)'))return;m.forEach(it=>persist('remove',it));};
 
   const ptPct=(sl,e)=>{const r=sl.getBoundingClientRect();return [+((e.clientX-r.left)/r.width*100).toFixed(2),+((e.clientY-r.top)/r.height*100).toFixed(2)];};
   let drawing=null;
@@ -623,7 +631,10 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   listBtn.onclick=()=>{panel.classList.add('open');back.classList.add('open');};
   $('cclose').onclick=()=>{panel.classList.remove('open');back.classList.remove('open');};
   back.onclick=()=>{panel.classList.remove('open');back.classList.remove('open');closePop();};
-  document.addEventListener('mousedown',e=>{if(pop.classList.contains('show')&&!pop.contains(e.target)&&!(e.target.classList&&e.target.classList.contains('pin'))){closePop();}});
+  document.addEventListener('mousedown',e=>{
+    if(pop.classList.contains('show')&&!pop.contains(e.target)&&!(e.target.classList&&e.target.classList.contains('pin')))closePop();
+    if(panel.classList.contains('open')&&!panel.contains(e.target)&&e.target!==listBtn&&!listBtn.contains(e.target)){panel.classList.remove('open');back.classList.remove('open');}
+  });
   track.addEventListener('transitionstart',()=>{closePop();selbar.classList.remove('show');});
   addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName))return;
     if(e.key==='Escape'){closePop();selbar.classList.remove('show');setTool('select');}
@@ -635,7 +646,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   });
 
   renderWho();load();
-  if(CONFIG.API)setInterval(load,15000);
+  if(CONFIG.API)setInterval(()=>{ if(!(pop.classList.contains('show')||drawing||panel.classList.contains('open')||selbar.classList.contains('show'))) load(); },15000);
 })();
 
 /* image upload */
