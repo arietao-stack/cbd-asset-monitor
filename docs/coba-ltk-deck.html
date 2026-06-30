@@ -527,11 +527,11 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     if(sigOf(data)===lastSig)return;          // unchanged → skip re-render (no flicker)
     comments=data;local.set(comments);render();
   }
-  async function persist(action,c){
+  async function persist(action,c,notify){
     if(action==='remove')comments=comments.filter(x=>x.id!==c.id);
     else{const i=comments.findIndex(x=>x.id===c.id);if(i<0)comments.push(c);else comments[i]=c;}
     local.set(comments);render();
-    if(CONFIG.API){try{await fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:'CoBa × LTK'})});}catch(e){}}
+    if(CONFIG.API){try{await fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:'CoBa × LTK',notify:notify||''})});}catch(e){}}
   }
   const comOf=()=>comments.filter(x=>!x.type||x.type==='comment');
 
@@ -570,8 +570,8 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     const pin=document.querySelector('.pin[data-id="'+id+'"]');const rect=pin?pin.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2};
     placePop(rect.left,rect.top);pop.classList.add('show');popSticky=(sticky!==false);
     document.getElementById('popClose').onclick=closePop;
-    document.getElementById('popReplySend').onclick=()=>{const ta=document.getElementById('popReply');const t=ta.value.trim();if(!t)return;ensure(()=>{c.replies=c.replies||[];c.replies.push({author:me,text:t,ts:Date.now()});persist('update',c).then(()=>openThread(id));});};
-    const rs=document.getElementById('popResolve');if(rs)rs.onclick=()=>{c.resolved=!c.resolved;persist('update',c).then(()=>{c.resolved?closePop():openThread(id,true);});};
+    document.getElementById('popReplySend').onclick=()=>{const ta=document.getElementById('popReply');const t=ta.value.trim();if(!t)return;ensure(()=>{c.replies=c.replies||[];c.replies.push({author:me,text:t,ts:Date.now()});persist('update',c,'reply').then(()=>openThread(id));});};
+    const rs=document.getElementById('popResolve');if(rs)rs.onclick=()=>{c.resolved=!c.resolved;persist('update',c,'resolve').then(()=>{c.resolved?closePop():openThread(id,true);});};
     const dl=document.getElementById('popDel');if(dl)dl.onclick=()=>{persist('remove',c);closePop();};
   }
 
@@ -631,8 +631,8 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
         ev.stopPropagation();const act=a.dataset.act;
         if(act==='go')goTo();
         else if(act==='reply'){const rb=el.querySelector('.rbox');rb.classList.toggle('show');if(rb.classList.contains('show')){const t=rb.querySelector('textarea');setTimeout(()=>t&&t.focus(),30);}}
-        else if(act==='send')ensure(()=>{const t=el.querySelector('.rbox textarea'),v=t?t.value.trim():'';if(!v)return;c.replies=c.replies||[];c.replies.push({author:me,text:v,ts:Date.now()});persist('update',c);});
-        else if(act==='resolve'){c.resolved=!c.resolved;persist('update',c);}
+        else if(act==='send')ensure(()=>{const t=el.querySelector('.rbox textarea'),v=t?t.value.trim():'';if(!v)return;c.replies=c.replies||[];c.replies.push({author:me,text:v,ts:Date.now()});persist('update',c,'reply');});
+        else if(act==='resolve'){c.resolved=!c.resolved;persist('update',c,'resolve');}
         else if(act==='del')persist('remove',c);
       }));
     });
