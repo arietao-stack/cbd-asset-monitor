@@ -557,7 +557,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     placePop(rect.left,rect.top);pop.classList.add('show');popSticky=(sticky!==false);
     document.getElementById('popClose').onclick=closePop;
     document.getElementById('popReplySend').onclick=()=>{const ta=document.getElementById('popReply');const t=ta.value.trim();if(!t)return;ensure(()=>{c.replies=c.replies||[];c.replies.push({author:me,text:t,ts:Date.now()});persist('update',c).then(()=>openThread(id));});};
-    const rs=document.getElementById('popResolve');if(rs)rs.onclick=()=>{c.resolved=!c.resolved;persist('update',c).then(()=>openThread(id));};
+    const rs=document.getElementById('popResolve');if(rs)rs.onclick=()=>{c.resolved=!c.resolved;persist('update',c).then(()=>{c.resolved?closePop():openThread(id,true);});};
     const dl=document.getElementById('popDel');if(dl)dl.onclick=()=>{persist('remove',c);closePop();};
   }
 
@@ -567,8 +567,9 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     comments.forEach(it=>{
       const sl=slides[it.slide];if(!sl)return;
       if(!it.type||it.type==='comment'){
-        if(it.rects&&it.rects.length){const ov=ovOf(it.slide);it.rects.forEach(rc=>{const r=document.createElementNS(NS,'rect');r.setAttribute('x',rc[0]);r.setAttribute('y',rc[1]);r.setAttribute('width',rc[2]);r.setAttribute('height',rc[3]);r.setAttribute('fill',colorFor(it.author));r.setAttribute('fill-opacity',it.resolved?'0.12':'0.26');r.dataset.id=it.id;r.addEventListener('click',()=>{if(tool==='eraser')return;openThread(it.id);});if(ov)ov.appendChild(r);});}
-        const pin=document.createElement('div');pin.className='pin'+(it.resolved?' resolved':'');pin.dataset.id=it.id;
+        if(it.resolved)return;   // resolved → hidden from the slide (still listed in the Comments panel)
+        if(it.rects&&it.rects.length){const ov=ovOf(it.slide);it.rects.forEach(rc=>{const r=document.createElementNS(NS,'rect');r.setAttribute('x',rc[0]);r.setAttribute('y',rc[1]);r.setAttribute('width',rc[2]);r.setAttribute('height',rc[3]);r.setAttribute('fill',colorFor(it.author));r.setAttribute('fill-opacity','0.26');r.dataset.id=it.id;r.addEventListener('click',()=>{if(tool==='eraser')return;openThread(it.id);});if(ov)ov.appendChild(r);});}
+        const pin=document.createElement('div');pin.className='pin';pin.dataset.id=it.id;
         pin.style.left=it.x+'%';pin.style.top=it.y+'%';pin.style.background=colorFor(it.author);pin.textContent=initials(it.author);
         pin.addEventListener('mouseenter',()=>{if(tool==='eraser')return;cancelHide();openThread(it.id,false);});
         pin.addEventListener('mouseleave',schedHide);
