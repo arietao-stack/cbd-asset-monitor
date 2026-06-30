@@ -528,10 +528,10 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
 
   let popSticky=false,hideT=null;
   function closePop(){pop.classList.remove('show');popSticky=false;}
-  function schedHide(){clearTimeout(hideT);hideT=setTimeout(()=>{if(!popSticky)closePop();},260);}
+  function schedHide(){clearTimeout(hideT);hideT=setTimeout(()=>{if(!popSticky)closePop();},420);}
   function cancelHide(){clearTimeout(hideT);}
-  pop.addEventListener('mouseenter',cancelHide);
-  pop.addEventListener('mouseleave',()=>{if(!popSticky)schedHide();});
+  pop.addEventListener('mouseenter',()=>{cancelHide();popSticky=true;});   // entering the pop locks it open
+  pop.addEventListener('mousemove',cancelHide);
   pop.addEventListener('mousedown',()=>{popSticky=true;});
   function placePop(px,py){const w=300;let l=Math.min(Math.max(12,px+14),innerWidth-w-12);let t=Math.min(Math.max(12,py-10),innerHeight-280);pop.style.left=l+'px';pop.style.top=t+'px';}
 
