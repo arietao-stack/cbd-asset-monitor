@@ -526,20 +526,26 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   function askName(cb){modal.classList.add('show');nameInput.value=me;setTimeout(()=>nameInput.focus(),60);nameSave.onclick=()=>{if(!nameInput.value.trim())return;setMe(nameInput.value);modal.classList.remove('show');cb&&cb();};nameInput.onkeydown=e=>{if(e.key==='Enter')nameSave.onclick();};}
   function ensure(cb){me?cb():askName(cb);}
 
-  function closePop(){pop.classList.remove('show');}
+  let popSticky=false,hideT=null;
+  function closePop(){pop.classList.remove('show');popSticky=false;}
+  function schedHide(){clearTimeout(hideT);hideT=setTimeout(()=>{if(!popSticky)closePop();},260);}
+  function cancelHide(){clearTimeout(hideT);}
+  pop.addEventListener('mouseenter',cancelHide);
+  pop.addEventListener('mouseleave',()=>{if(!popSticky)schedHide();});
+  pop.addEventListener('mousedown',()=>{popSticky=true;});
   function placePop(px,py){const w=300;let l=Math.min(Math.max(12,px+14),innerWidth-w-12);let t=Math.min(Math.max(12,py-10),innerHeight-280);pop.style.left=l+'px';pop.style.top=t+'px';}
 
   function ctxBar(slide,extra){return `<div class="ctx"><span>Slide ${slide+1} — ${SLIDE_TITLES[slide]||''}</span><span class="meta-act">${extra||''}<a id="popClose">✕</a></span></div>`;}
-  function openComposer(slide,x,y,px,py,linkId){
+  function openComposer(slide,x,y,px,py,rects){
     pop.innerHTML=ctxBar(slide)+`<textarea id="popText" placeholder="What's not working here? Suggest a change…"></textarea>
       <div class="row"><button class="btn-send" id="popSend">Comment</button><button class="btn-ghost" id="popCancel">Cancel</button></div>`;
-    placePop(px,py);pop.classList.add('show');
+    placePop(px,py);pop.classList.add('show');popSticky=true;
     const ta=document.getElementById('popText');setTimeout(()=>ta.focus(),50);
     document.getElementById('popClose').onclick=closePop;
     document.getElementById('popCancel').onclick=closePop;
-    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;const c={id:uid(),type:'comment',slide,x,y,author:me,text:t,ts:Date.now(),replies:[],resolved:false,linkId:linkId||null};persist('add',c).then(()=>openThread(c.id));};
+    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;const c={id:uid(),type:'comment',slide,x,y,author:me,text:t,ts:Date.now(),replies:[],resolved:false,rects:rects||null};persist('add',c).then(()=>openThread(c.id));};
   }
-  function openThread(id){
+  function openThread(id,sticky){
     const c=comments.find(x=>x.id===id);if(!c)return;
     if(idx!==c.slide)go(c.slide);
     const thread=[{author:c.author,text:c.text,ts:c.ts},...(c.replies||[])];
@@ -548,7 +554,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
       +`<textarea id="popReply" placeholder="Reply…"></textarea>
       <div class="row"><button class="btn-send" id="popReplySend">Reply</button></div>`;
     const pin=document.querySelector('.pin[data-id="'+id+'"]');const rect=pin?pin.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2};
-    placePop(rect.left,rect.top);pop.classList.add('show');
+    placePop(rect.left,rect.top);pop.classList.add('show');popSticky=(sticky!==false);
     document.getElementById('popClose').onclick=closePop;
     document.getElementById('popReplySend').onclick=()=>{const ta=document.getElementById('popReply');const t=ta.value.trim();if(!t)return;ensure(()=>{c.replies=c.replies||[];c.replies.push({author:me,text:t,ts:Date.now()});persist('update',c).then(()=>openThread(id));});};
     const rs=document.getElementById('popResolve');if(rs)rs.onclick=()=>{c.resolved=!c.resolved;persist('update',c).then(()=>openThread(id));};
@@ -561,9 +567,12 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     comments.forEach(it=>{
       const sl=slides[it.slide];if(!sl)return;
       if(!it.type||it.type==='comment'){
+        if(it.rects&&it.rects.length){const ov=ovOf(it.slide);it.rects.forEach(rc=>{const r=document.createElementNS(NS,'rect');r.setAttribute('x',rc[0]);r.setAttribute('y',rc[1]);r.setAttribute('width',rc[2]);r.setAttribute('height',rc[3]);r.setAttribute('fill',colorFor(it.author));r.setAttribute('fill-opacity',it.resolved?'0.12':'0.26');r.dataset.id=it.id;r.addEventListener('click',()=>{if(tool==='eraser')return;openThread(it.id);});if(ov)ov.appendChild(r);});}
         const pin=document.createElement('div');pin.className='pin'+(it.resolved?' resolved':'');pin.dataset.id=it.id;
         pin.style.left=it.x+'%';pin.style.top=it.y+'%';pin.style.background=colorFor(it.author);pin.textContent=initials(it.author);
-        pin.onclick=ev=>{ev.stopPropagation();if(tool==='eraser')return;openThread(it.id);};
+        pin.addEventListener('mouseenter',()=>{if(tool==='eraser')return;cancelHide();openThread(it.id,false);});
+        pin.addEventListener('mouseleave',schedHide);
+        pin.onclick=ev=>{ev.stopPropagation();if(tool==='eraser')return;cancelHide();openThread(it.id,true);};
         sl.appendChild(pin);
       } else if(it.type==='draw'){
         const pl=document.createElementNS(NS,'polyline');pl.setAttribute('points',(it.pts||[]).map(p=>p.join(',')).join(' '));pl.setAttribute('fill','none');pl.setAttribute('stroke',it.color||'#E0B266');pl.setAttribute('stroke-linecap','round');pl.setAttribute('stroke-linejoin','round');pl.setAttribute('vector-effect','non-scaling-stroke');pl.setAttribute('stroke-width',it.mode==='hl'?14:3);if(it.mode==='hl')pl.setAttribute('stroke-opacity','0.35');pl.dataset.id=it.id;
@@ -626,12 +635,15 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     sl.addEventListener('click',ev=>{
       if(tool!=='comment')return;
       ev.stopPropagation();ev.preventDefault();
-      const [x,y]=ptPct(sl,ev);setTool('select');openComposer(i,x,y,ev.clientX,ev.clientY);
+      const [x,y]=ptPct(sl,ev);
+      const tEl=ev.target&&ev.target.closest?ev.target.closest('[data-ek]'):null;
+      setTool('select');openComposer(i,x,y,ev.clientX,ev.clientY,tEl?rectsForEl(tEl,sl):null);
     },true);
   });
 
   // ---- select text → highlight / comment ----
   let selData=null;
+  function rectsForEl(el,sl){const r=sl.getBoundingClientRect(),L=el.getClientRects(),out=[];for(let k=0;k<L.length;k++){const b=L[k];if(b.width<1)continue;out.push([+((b.left-r.left)/r.width*100).toFixed(2),+((b.top-r.top)/r.height*100).toFixed(2),+(b.width/r.width*100).toFixed(2),+(b.height/r.height*100).toFixed(2)]);}return out;}
   function rectsForSel(sl){const s=window.getSelection();if(!s||!s.rangeCount)return[];const r=sl.getBoundingClientRect(),L=s.getRangeAt(0).getClientRects(),out=[];for(let k=0;k<L.length;k++){const b=L[k];if(b.width<1)continue;out.push([+((b.left-r.left)/r.width*100).toFixed(2),+((b.top-r.top)/r.height*100).toFixed(2),+(b.width/r.width*100).toFixed(2),+(b.height/r.height*100).toFixed(2)]);}return out;}
   document.addEventListener('mouseup',()=>{
     if(tool!=='select'){selbar.classList.remove('show');return;}
@@ -648,7 +660,7 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
     },10);
   });
   $('selHl').onclick=()=>ensure(()=>{if(!selData)return;const rects=rectsForSel(selData.sl);if(rects.length)persist('update',{id:uid(),type:'hl',slide:selData.slide,color,rects,author:me,text:selData.text,ts:Date.now()});const sel=window.getSelection();if(sel)sel.removeAllRanges();selbar.classList.remove('show');});
-  $('selComment').onclick=()=>ensure(()=>{if(!selData)return;const rects=rectsForSel(selData.sl),id=uid();if(rects.length)persist('update',{id,type:'hl',slide:selData.slide,color,rects,author:me,text:selData.text,ts:Date.now()});const x=rects.length?rects[0][0]:50,y=rects.length?rects[0][1]:50,r=selData.sl.getBoundingClientRect(),sd=selData;const sel=window.getSelection();if(sel)sel.removeAllRanges();selbar.classList.remove('show');openComposer(sd.slide,x,y,r.left+r.width*x/100,r.top+r.height*y/100,id);});
+  $('selComment').onclick=()=>ensure(()=>{if(!selData)return;const rects=rectsForSel(selData.sl),x=rects.length?rects[0][0]:50,y=rects.length?rects[0][1]:50,r=selData.sl.getBoundingClientRect(),sd=selData;const sel=window.getSelection();if(sel)sel.removeAllRanges();selbar.classList.remove('show');openComposer(sd.slide,x,y,r.left+r.width*x/100,r.top+r.height*y/100,rects);});
 
   // ---- panel / nav / close ----
   listBtn.onclick=()=>{panel.classList.add('open');back.classList.add('open');};
