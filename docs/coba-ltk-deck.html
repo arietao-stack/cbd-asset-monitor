@@ -521,17 +521,16 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
 
   const local={get(){try{return JSON.parse(localStorage.getItem('coba_pins')||'[]');}catch(e){return [];}},set(a){try{localStorage.setItem('coba_pins',JSON.stringify(a));}catch(e){}}};
   async function load(){
-    let data=null;
-    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();data=Array.isArray(j)?j:(j.comments||[]);}catch(e){data=null;}}
-    if(data==null)data=local.get();
-    if(sigOf(data)===lastSig)return;          // unchanged → skip re-render (no flicker)
-    comments=data;local.set(comments);render();
+    const cached=local.get();
+    if(sigOf(cached)!==lastSig){comments=cached;render();}   // paint cache instantly
+    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();const data=Array.isArray(j)?j:(j.comments||[]);if(sigOf(data)!==lastSig){comments=data;local.set(comments);render();}}catch(e){}}
   }
-  async function persist(action,c,notify){
+  function persist(action,c,notify){
     if(action==='remove')comments=comments.filter(x=>x.id!==c.id);
     else{const i=comments.findIndex(x=>x.id===c.id);if(i<0)comments.push(c);else comments[i]=c;}
-    local.set(comments);render();
-    if(CONFIG.API){try{await fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:'CoBa × LTK',notify:notify||''})});}catch(e){}}
+    local.set(comments);render();                            // optimistic: UI updates immediately
+    if(CONFIG.API){fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:'CoBa × LTK',notify:notify||''})}).catch(function(){});}  // fire-and-forget (no await)
+    return Promise.resolve();
   }
   const comOf=()=>comments.filter(x=>!x.type||x.type==='comment');
 
