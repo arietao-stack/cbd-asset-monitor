@@ -493,6 +493,7 @@ const start=parseInt((location.hash||'').replace('#',''));go(Number.isInteger(st
 /* ===== Collaborative comments: identity-once + Figma/Canva-style pins ===== */
 /* Set CONFIG.API to a backend URL to SHARE across people + auto-email. Blank = saved on THIS device only. */
 const CONFIG={ API:"https://script.google.com/macros/s/AKfycbxTRbXPTam7Rzupu1o0mepcgcxbifcEzPUANrtNcysv0WDGnIxmodOK7jkBvIAjIg/exec" };
+const DECK_ID="coba-ltk", DECK_NAME="CoBa × LTK";  // isolates this deck's comments on the shared backend
 const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In the App","How We Measure","The Loop","The Ask","Close"];
 (function(){
   const AVA=['#E0B266','#CC774A','#9AA07E','#D7A98A','#7FA8B5','#C98F5A'];
@@ -519,17 +520,20 @@ const SLIDE_TITLES=["Cover","Manifesto","The Bet","The Plan","Why It Works","In 
   let comments=[],tool='select',color='#E0B266',lastSig='';
   const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length]));
 
-  const local={get(){try{return JSON.parse(localStorage.getItem('coba_pins')||'[]');}catch(e){return [];}},set(a){try{localStorage.setItem('coba_pins',JSON.stringify(a));}catch(e){}}};
+  const LS_KEY='coba_pins_'+DECK_ID;   // per-deck cache key (shared origin)
+  const mine=arr=>(arr||[]).filter(x=>(x.deck||'coba-ltk')===DECK_ID);   // only this deck's items
+  const local={get(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return [];}},set(a){try{localStorage.setItem(LS_KEY,JSON.stringify(a));}catch(e){}}};
   async function load(){
-    const cached=local.get();
+    const cached=mine(local.get());
     if(sigOf(cached)!==lastSig){comments=cached;render();}   // paint cache instantly
-    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();const data=Array.isArray(j)?j:(j.comments||[]);if(sigOf(data)!==lastSig){comments=data;local.set(comments);render();}}catch(e){}}
+    if(CONFIG.API){try{const r=await fetch(CONFIG.API+'?action=list',{cache:'no-store'});const j=await r.json();const data=mine(Array.isArray(j)?j:(j.comments||[]));if(sigOf(data)!==lastSig){comments=data;local.set(comments);render();}}catch(e){}}
   }
   function persist(action,c,notify){
+    if(action!=='remove')c.deck=DECK_ID;                     // tag the item to this deck
     if(action==='remove')comments=comments.filter(x=>x.id!==c.id);
     else{const i=comments.findIndex(x=>x.id===c.id);if(i<0)comments.push(c);else comments[i]=c;}
     local.set(comments);render();                            // optimistic: UI updates immediately
-    if(CONFIG.API){fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:'CoBa × LTK',notify:notify||''})}).catch(function(){});}  // fire-and-forget (no await)
+    if(CONFIG.API){fetch(CONFIG.API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,comment:c,deck:DECK_NAME,notify:notify||''})}).catch(function(){});}  // fire-and-forget (no await)
     return Promise.resolve();
   }
   const comOf=()=>comments.filter(x=>!x.type||x.type==='comment');
