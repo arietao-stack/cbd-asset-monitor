@@ -228,6 +228,14 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .tool{width:38px;height:38px;display:grid;place-items:center;background:rgba(28,22,15,.82);backdrop-filter:blur(8px);color:var(--bone-dim);border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:15px;transition:.2s}
 .tool:hover{color:var(--gold);border-color:var(--gold)}
 .tool.on{background:linear-gradient(90deg,var(--gold),var(--clay));color:#1a140d;border-color:transparent}
+.imgel{position:absolute;z-index:5;border-radius:6px;box-shadow:0 10px 30px -12px rgba(0,0,0,.7);pointer-events:none;user-select:none}
+.imgel img{pointer-events:none;-webkit-user-drag:none}
+body.imgmode .imgel{pointer-events:auto;cursor:move;outline:1.5px dashed var(--gold);outline-offset:2px}
+.imgel .del,.imgel .rz{display:none;position:absolute;z-index:6}
+.imgel .del{top:-11px;right:-11px;width:22px;height:22px;border-radius:50%;background:#E4746B;color:#fff;font-size:12px;line-height:22px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.imgel .rz{right:-8px;bottom:-8px;width:16px;height:16px;border-radius:4px;background:var(--gold);border:2px solid #1a140d;cursor:nwse-resize}
+body.imgmode .imgel .del,body.imgmode .imgel .rz{display:block}
+body.imgmode .slide{cursor:copy}
 .swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
 .swatch.on{border-color:#fff;transform:scale(1.18)}
 .tdiv{width:1px;height:24px;background:var(--line);margin:0 2px}
@@ -394,7 +402,9 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(216,67,78,0.17),tr
   <button class="tool" id="tPen" title="Draw (P)">✎</button>
   <button class="tool" id="tErase" title="Eraser — click a stroke to delete (E)">⌫</button>
   <button class="tool" id="tClear" title="Clear all drawings on this slide">🗑</button>
+  <button class="tool" id="tImg" title="Insert image — click a spot, then drag / resize (I)">🖼</button>
   <button class="tool" id="tEdit" title="Edit text directly (⌘B = bold)">✏️</button>
+  <input type="file" id="imgFile" accept="image/*" style="display:none">
   <span class="tdiv"></span>
   <span class="swatch on" data-c="#E0B266" style="background:#E0B266"></span>
   <span class="swatch" data-c="#CC774A" style="background:#CC774A"></span>
@@ -479,7 +489,7 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
 
   const NS='http://www.w3.org/2000/svg';
   const $=id=>document.getElementById(id);
-  const tools={select:$('tSelect'),comment:$('tComment'),hl:$('tHl'),pen:$('tPen'),eraser:$('tErase'),edit:$('tEdit')};
+  const tools={select:$('tSelect'),comment:$('tComment'),hl:$('tHl'),pen:$('tPen'),eraser:$('tErase'),img:$('tImg'),edit:$('tEdit')};
   const listBtn=$('listBtn'),whoChip=$('whoChip'),pop=$('pop'),panel=$('cpanel'),back=$('cback'),
         clist=$('clist'),cCount=$('cCount'),selbar=$('selbar'),fmtbar=$('fmtbar'),
         modal=$('nameModal'),nameInput=$('nameInput'),emailInput=$('emailInput'),nameSave=$('nameSave');
@@ -557,6 +567,7 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
 
   function render(){
     document.querySelectorAll('.pin').forEach(p=>p.remove());
+    document.querySelectorAll('.imgel').forEach(p=>p.remove());
     slides.forEach((sl,i)=>{const ov=ovOf(i);if(ov)ov.innerHTML='';});
     comments.forEach(it=>{
       const sl=slides[it.slide];if(!sl)return;
@@ -579,6 +590,27 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
       } else if(it.type==='edit'){
         const el=slides[it.slide]&&slides[it.slide].querySelector('[data-ek="'+it.key+'"]');
         if(el&&el!==document.activeElement&&el.innerHTML!==it.html)el.innerHTML=it.html;
+      } else if(it.type==='image'){
+        const im=document.createElement('div');im.className='imgel';im.dataset.id=it.id;
+        im.style.left=it.x+'%';im.style.top=it.y+'%';im.style.width=(it.w||26)+'%';
+        im.innerHTML='<img src="'+it.src+'" draggable="false" style="width:100%;display:block;border-radius:inherit"><span class="del" title="Delete">✕</span><span class="rz" title="Drag to resize"></span>';
+        sl.appendChild(im);
+        im.querySelector('.del').addEventListener('click',ev=>{ev.stopPropagation();persist('remove',it);});
+        im.addEventListener('pointerdown',ev=>{
+          if(tool!=='img'||ev.target.classList.contains('rz')||ev.target.classList.contains('del'))return;
+          ev.preventDefault();ev.stopPropagation();imgDrag=true;
+          const r=sl.getBoundingClientRect(),sx=ev.clientX,sy=ev.clientY,ox=+it.x||0,oy=+it.y||0;let moved=false;
+          const mv=e=>{const dx=(e.clientX-sx)/r.width*100,dy=(e.clientY-sy)/r.height*100;it.x=Math.max(0,Math.min(99,ox+dx));it.y=Math.max(0,Math.min(99,oy+dy));im.style.left=it.x+'%';im.style.top=it.y+'%';moved=true;};
+          const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;if(moved)persist('update',it);};
+          document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
+        });
+        im.querySelector('.rz').addEventListener('pointerdown',ev=>{
+          if(tool!=='img')return;ev.preventDefault();ev.stopPropagation();imgDrag=true;
+          const r=sl.getBoundingClientRect(),sx=ev.clientX,ow=it.w||26;
+          const mv=e=>{const dw=(e.clientX-sx)/r.width*100;it.w=Math.max(6,Math.min(100,ow+dw));im.style.width=it.w+'%';};
+          const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;persist('update',it);};
+          document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
+        });
       }
     });
     cCount.textContent=comOf().filter(c=>!c.resolved).length;
@@ -620,7 +652,7 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
 
   // ---- tools ----
   function setTool(t){tool=t;Object.keys(tools).forEach(k=>tools[k]&&tools[k].classList.toggle('on',k===t));
-    stage.classList.toggle('drawing',t==='pen'||t==='hl');stage.classList.toggle('erasing',t==='eraser');
+    stage.classList.toggle('drawing',t==='pen'||t==='hl');stage.classList.toggle('erasing',t==='eraser');document.body.classList.toggle('imgmode',t==='img');
     const ed=t==='edit';stage.classList.toggle('editing',ed);fmtbar.classList.toggle('show',ed);
     document.querySelectorAll('[data-ek]').forEach(el=>el.contentEditable=ed?'true':'false');}
   tools.select.onclick=()=>setTool('select');
@@ -629,6 +661,28 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
   tools.pen.onclick=()=>ensure(()=>setTool(tool==='pen'?'select':'pen'));
   tools.eraser.onclick=()=>setTool(tool==='eraser'?'select':'eraser');
   tools.edit.onclick=()=>ensure(()=>setTool(tool==='edit'?'select':'edit'));
+  tools.img.onclick=()=>ensure(()=>setTool(tool==='img'?'select':'img'));
+  // ---- insert image: compress to fit the shared backend cell, then place on the slide ----
+  let pendImg=null, imgDrag=false;
+  function compressImg(file,cb){
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=function(){URL.revokeObjectURL(url);
+      let max=820,w=img.width||820,h=img.height||520;
+      if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}
+      const draw=bg=>{const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');if(bg){g.fillStyle='#fff';g.fillRect(0,0,w,h);}g.drawImage(img,0,0,w,h);return cv;};
+      const png=draw(false).toDataURL('image/png');
+      if(png.length<=44000){cb(png);return;}
+      let q=0.72,data=draw(true).toDataURL('image/jpeg',q),guard=0;
+      while(data.length>44000&&guard++<9){if(q>0.4)q-=0.1;else{w=Math.round(w*0.85);h=Math.round(h*0.85);}data=draw(true).toDataURL('image/jpeg',q);}
+      cb(data);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);cb(null);};
+    img.src=url;
+  }
+  $('imgFile').onchange=function(){const f=this.files&&this.files[0];this.value='';if(!f||!pendImg)return;const p=pendImg;pendImg=null;
+    const num=(v,d)=>(typeof v==='number'&&!isNaN(v))?v:d;
+    compressImg(f,data=>{if(!data){alert('Could not read that image.');return;}
+      persist('update',{id:uid(),type:'image',slide:p.slide,x:num(p.x,34),y:num(p.y,30),w:26,src:data,author:me,ts:Date.now()});});};
   document.querySelectorAll('#fmtbar [data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>{e.preventDefault();try{document.execCommand(b.dataset.cmd,false,null);}catch(_){}}));
   document.querySelectorAll('.swatch').forEach(sw=>sw.onclick=()=>{color=sw.dataset.c;document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('on'));sw.classList.add('on');});
   $('tClear').onclick=()=>{const m=comments.filter(x=>(x.type==='draw'||x.type==='hl')&&x.slide===idx);if(!m.length){return;}if(!confirm('Clear all drawings & highlights on this slide? (comments stay)'))return;m.forEach(it=>persist('remove',it));};
@@ -647,6 +701,11 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
     sl.addEventListener('pointermove',e=>{if(drawing&&drawing.slide===i){drawing.pts.push(ptPct(sl,e));drawing.el.setAttribute('points',drawing.pts.map(p=>p.join(',')).join(' '));}});
     sl.addEventListener('pointerup',()=>{if(drawing&&drawing.slide===i){if(drawing.pts.length>1)persist('update',{id:uid(),type:'draw',slide:i,mode:drawing.mode,color:drawing.color,pts:drawing.pts,author:me,ts:Date.now()});else if(drawing.el)drawing.el.remove();drawing=null;}});
     sl.addEventListener('click',ev=>{
+      if(tool==='img'){
+        if(ev.target.closest&&ev.target.closest('.imgel'))return;   // clicking an existing image = drag/resize, not insert
+        ev.stopPropagation();ev.preventDefault();
+        const [ix,iy]=ptPct(sl,ev);pendImg={slide:i,x:Math.max(0,Math.min(90,ix)),y:Math.max(0,Math.min(90,iy))};$('imgFile').click();return;
+      }
       if(tool!=='comment')return;
       ev.stopPropagation();ev.preventDefault();
       const [x,y]=ptPct(sl,ev);
@@ -692,10 +751,11 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
     else if(e.key==='h'||e.key==='H')ensure(()=>setTool('hl'));
     else if(e.key==='p'||e.key==='P')ensure(()=>setTool('pen'));
     else if(e.key==='e'||e.key==='E')setTool('eraser');
+    else if(e.key==='i'||e.key==='I')ensure(()=>setTool('img'));
   });
 
   renderWho();load();
-  if(CONFIG.API)setInterval(()=>{ if(!(pop.classList.contains('show')||drawing||panel.classList.contains('open')||selbar.classList.contains('show'))) load(); },15000);
+  if(CONFIG.API)setInterval(()=>{ if(!(pop.classList.contains('show')||drawing||imgDrag||panel.classList.contains('open')||selbar.classList.contains('show'))) load(); },15000);
 })();
 
 /* image upload */
