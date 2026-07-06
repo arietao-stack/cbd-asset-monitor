@@ -259,9 +259,10 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .impanel .ph{position:relative;flex:1 1 0;min-height:0}
 .impanel img{width:100%;height:100%;object-fit:contain;border-radius:12px;background:transparent;filter:drop-shadow(0 14px 34px rgba(0,0,0,.55));display:block;-webkit-user-drag:none}
 .impanel .del{display:none;position:absolute;top:-11px;right:-11px;width:22px;height:22px;border-radius:50%;background:#E4746B;color:#fff;font-size:12px;line-height:22px;text-align:center;cursor:pointer;z-index:7;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.impanel .idl{display:none;position:absolute;top:-11px;left:-11px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a140d;font-size:14px;font-weight:700;line-height:21px;text-align:center;cursor:pointer;z-index:7;box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .impanel .rz{display:none;position:absolute;right:-9px;bottom:-9px;width:16px;height:16px;border-radius:4px;background:var(--gold);border:2px solid #1a140d;cursor:nwse-resize;z-index:7}
 body.imgmode .impanel{cursor:move;outline:1.6px dashed var(--gold);outline-offset:5px;border-radius:12px}
-body.imgmode .impanel .del,body.imgmode .impanel .rz{display:block}
+body.imgmode .impanel .del,body.imgmode .impanel .rz,body.imgmode .impanel .idl{display:block}
 body.imgmode .slide{cursor:copy}
 .swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
 .swatch.on{border-color:#fff;transform:scale(1.18)}
@@ -386,6 +387,8 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .imgslot.filled .ph{display:none}
 .simg{position:relative;flex:none;line-height:0}
 .simg img{height:180px;width:auto;max-width:100%;display:block;border-radius:9px;box-shadow:0 8px 22px -12px rgba(0,0,0,.6);-webkit-user-drag:none}
+.simg .sdl{position:absolute;top:-9px;left:-9px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a140d;font-size:14px;font-weight:700;line-height:21px;text-align:center;cursor:pointer;z-index:4;opacity:0;transition:.15s}
+.simg:hover .sdl{opacity:1}
 .simg .srm{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:#E4746B;color:#fff;font-size:11px;line-height:22px;text-align:center;cursor:pointer;z-index:4;opacity:0;transition:.15s}
 .simg .srz{position:absolute;right:-6px;bottom:-6px;width:16px;height:16px;border-radius:4px;background:var(--gold);border:2px solid #1a140d;cursor:nwse-resize;z-index:4;opacity:0;transition:.15s}
 .simg:hover .srm,.simg:hover .srz{opacity:1}
@@ -952,7 +955,8 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
       sl.classList.add('has-img');applyBlock(sl,imgs);
       const panel=document.createElement('div');panel.className='impanel';
       imgs.forEach(it=>{const ph=document.createElement('div');ph.className='ph';
-        ph.innerHTML='<img src="'+it.src+'" draggable="false"><span class="del" title="Remove image">✕</span>';
+        ph.innerHTML='<img src="'+it.src+'" draggable="false"><span class="idl" title="Download image">⤓</span><span class="del" title="Remove image">✕</span>';
+        ph.querySelector('.idl').addEventListener('click',ev=>{ev.stopPropagation();dlImg(it.src,'image');});
         ph.querySelector('.del').addEventListener('click',ev=>{ev.stopPropagation();persist('remove',it);});
         panel.appendChild(ph);});
       const rz=document.createElement('span');rz.className='rz';rz.title='Drag corner to resize';panel.appendChild(rz);
@@ -1122,7 +1126,9 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
     else if(e.key==='i'||e.key==='I')ensure(()=>setTool('img'));
   });
 
-  // ---- image slots on compare cards: MANY images per slot, each resizable; synced to everyone ----
+  // download any image (base64) to disk
+  function dlImg(src,base){try{const m=(String(src).match(/^data:(image\/[a-z0-9.+-]+)/)||[])[1]||'image/png';const ext=m.split('/')[1].replace('jpeg','jpg').replace('svg+xml','svg');const a=document.createElement('a');a.href=src;a.download=(base||'image')+'-'+Date.now()+'.'+ext;document.body.appendChild(a);a.click();a.remove();}catch(e){}}
+  // ---- image slots on compare cards: MANY images per slot, each resizable + downloadable; synced to everyone ----
   let pendSlot=null;
   function paintSlots(){
     document.querySelectorAll('.imgslot').forEach(s=>{
@@ -1133,7 +1139,8 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
       s.classList.add('filled');if(ph)ph.style.display='none';
       imgs.forEach(it=>{
         const d=document.createElement('div');d.className='simg';
-        d.innerHTML='<img src="'+it.src+'" draggable="false" style="height:'+(+it.h||180)+'px"><span class="srm" title="Remove">✕</span><span class="srz" title="Drag to resize"></span>';
+        d.innerHTML='<img src="'+it.src+'" draggable="false" style="height:'+(+it.h||180)+'px"><span class="sdl" title="Download image">⤓</span><span class="srm" title="Remove">✕</span><span class="srz" title="Drag to resize"></span>';
+        d.querySelector('.sdl').addEventListener('click',ev=>{ev.stopPropagation();dlImg(it.src,'slot-'+slot);});
         d.querySelector('.srm').addEventListener('click',ev=>{ev.stopPropagation();persist('remove',{id:it.id});});
         d.querySelector('.srz').addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();imgDrag=true;
           const img=d.querySelector('img'),sy=ev.clientY,sh=(+it.h||180);let nh=sh;
