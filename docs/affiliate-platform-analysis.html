@@ -396,6 +396,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .tags.rost .tg.pick{background:rgba(245,236,216,.05);border-color:var(--line);color:var(--bone-dim);cursor:pointer}
 .tags.rost .tg.pick:hover{border-color:var(--gold);color:var(--gold-soft)}
 .assigned{font-size:11.5px;color:var(--gold-soft);margin:2px 0 8px}.assigned b{color:var(--gold)}
+.asglabel{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:9px 0 3px;font-weight:700}
 .fcard{border-radius:18px;padding:26px;border:1px solid var(--line);background:var(--card);transition:transform .4s,box-shadow .4s}
 .fcard.ltk{border-color:var(--ltk-line);background:linear-gradient(165deg,var(--ltk-bg),var(--card))}
 .fcard.shop{border-color:var(--shop-line);background:linear-gradient(165deg,var(--shop-bg),var(--card))}
@@ -808,7 +809,7 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
 
   let me='',meEmail='';try{me=localStorage.getItem('coba_user')||'';meEmail=localStorage.getItem('coba_email')||'';}catch(e){}
   let comments=[],tool='select',color='#E0B266',lastSig='';
-  const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length]));
+  const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,x.type,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length,x.gx,x.gy,x.gw,x.gh,x.slot,(x.src||'').length,(x.html||'').length,(x.mentions||[]).length]));  // include image/slot/position/edit so any change syncs on poll
 
   const LS_KEY='coba_pins_'+DECK_ID;   // per-deck cache key (shared origin)
   const mine=arr=>(arr||[]).filter(x=>(x.deck||'coba-ltk')===DECK_ID);   // only this deck's items
@@ -848,10 +849,12 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
   function ctxBar(slide,extra){return `<div class="ctx"><span>Slide ${slide+1} — ${SLIDE_TITLES[slide]||''}</span><span class="meta-act">${extra||''}<a id="popClose">✕</a></span></div>`;}
   function getRoster(){try{return JSON.parse(localStorage.getItem('coba_roster')||'[]');}catch(e){return[];}}
   function saveRoster(list){try{const r=getRoster();list.forEach(t=>{if(!r.some(x=>x.email.toLowerCase()===t.email.toLowerCase()))r.push({name:t.name,email:t.email});});localStorage.setItem('coba_roster',JSON.stringify(r.slice(-12)));}catch(e){}}
+  const TEAM=[{name:'Arie',email:'arie.tao@lixibox.com'},{name:'May',email:'may.dao@lixibox.com'},{name:'Eva',email:'eva@lixibox.com'},{name:'Rachel',email:'rachel.nguyen@lixibox.com'},{name:'Rei',email:'rei.nguyen@lixibox.com'},{name:'Méline',email:'meline.nguyen@lixibox.com'}];
+  function mergePicks(){const seen={},out=[];TEAM.concat(getRoster()).forEach(p=>{const k=(p.email||'').toLowerCase();if(p.email&&!seen[k]){seen[k]=1;out.push(p);}});return out;}
   function openComposer(slide,x,y,px,py,rects){
-    const roster=getRoster();
+    const roster=mergePicks();
     pop.innerHTML=ctxBar(slide)+`<textarea id="popText" placeholder="What's not working here? Suggest a change…"></textarea>
-      <div class="assign"><input id="popAssign" placeholder="＠ Assign someone — type email, press Enter" autocomplete="off"><div id="popTags" class="tags"></div>${roster.length?'<div class="tags rost">'+roster.map(p=>`<span class="tg pick" data-e="${esc(p.email)}" data-n="${esc(p.name||'')}">＋ ${esc(p.name||p.email)}</span>`).join('')+'</div>':''}</div>
+      <div class="assign"><input id="popAssign" placeholder="＠ Assign — click a name below, or type any email + Enter" autocomplete="off"><div id="popTags" class="tags"></div><div class="asglabel">LIXIBOX team</div>${roster.length?'<div class="tags rost">'+roster.map(p=>`<span class="tg pick" data-e="${esc(p.email)}" data-n="${esc(p.name||'')}" title="${esc(p.email)}">＋ ${esc(p.name||p.email)}</span>`).join('')+'</div>':''}</div>
       <div class="row"><button class="btn-send" id="popSend">Comment</button><button class="btn-ghost" id="popCancel">Cancel</button></div>`;
     placePop(px,py);pop.classList.add('show');popSticky=true;
     const ta=document.getElementById('popText');setTimeout(()=>ta.focus(),50);
