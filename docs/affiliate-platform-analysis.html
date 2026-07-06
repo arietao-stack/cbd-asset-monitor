@@ -838,7 +838,9 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
     pop.querySelectorAll('.tg.pick').forEach(p=>p.onclick=()=>addTag(p.dataset.e,p.dataset.n));
     document.getElementById('popClose').onclick=closePop;
     document.getElementById('popCancel').onclick=closePop;
-    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;if(asg.value.trim())addTag(asg.value.trim());if(tags.length)saveRoster(tags);const c={id:uid(),type:'comment',slide,x,y,author:me,authorEmail:meEmail,text:t,ts:Date.now(),replies:[],resolved:false,rects:rects||null,mentions:tags.slice()};persist('add',c).then(()=>openThread(c.id));};
+    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;if(asg.value.trim())addTag(asg.value.trim());
+      (t.match(/[^\s@]+@[^\s@]+\.[^\s@]+/g)||[]).forEach(e=>addTag(e.replace(/[).,;:!?]+$/,'')));  // any email typed in the comment = an assignment
+      if(tags.length)saveRoster(tags);const c={id:uid(),type:'comment',slide,x,y,author:me,authorEmail:meEmail,text:t,ts:Date.now(),replies:[],resolved:false,rects:rects||null,mentions:tags.slice()};persist('add',c).then(()=>openThread(c.id));};
   }
   function openThread(id,sticky){
     const c=comments.find(x=>x.id===id);if(!c)return;
