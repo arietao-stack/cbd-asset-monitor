@@ -353,6 +353,25 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .fmtgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 /* keep equal columns — without min-width:0 a wide-min-content card blows the 1fr track out */
 .fmtgrid>*,.roles>*,.twolane>*,.duel>.duelcard,.perorder>*,.road>*{min-width:0}
+/* image slots on compare cards — click to attach an illustration; synced to everyone */
+.imgslot{margin-top:14px;border:1.5px dashed var(--line2);border-radius:12px;min-height:54px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:.2s;background:rgba(245,236,216,.02)}
+.imgslot:hover{border-color:var(--gold);background:rgba(203,165,94,.05)}
+.imgslot .ph{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;pointer-events:none;padding:8px;text-align:center}
+.imgslot img{display:none;width:100%;max-height:130px;object-fit:contain;border-radius:11px}
+.imgslot.filled{border-style:solid;border-color:var(--line);min-height:0;cursor:default;background:transparent}
+.imgslot.filled .ph{display:none}.imgslot.filled img{display:block}
+.imgslot .srm{display:none;position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;background:rgba(10,7,4,.72);border:1px solid var(--line2);color:#fff;font-size:12px;line-height:22px;text-align:center;cursor:pointer;z-index:3}
+.imgslot.filled .srm{display:block}.imgslot .srm:hover{color:var(--neg);border-color:var(--neg)}
+/* assign / @tag in the comment composer */
+.assign{margin-top:8px}
+#popAssign{width:100%;background:rgba(245,236,216,.05);border:1px solid var(--line);border-radius:8px;color:var(--bone);font:inherit;font-size:12.5px;padding:7px 9px;outline:none}
+#popAssign:focus{border-color:var(--gold)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tags .tg{display:inline-flex;align-items:center;gap:5px;background:rgba(203,165,94,.16);border:1px solid var(--gold-deep);color:var(--gold-soft);font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px}
+.tags .tg b{cursor:pointer;opacity:.65;font-weight:700}.tags .tg b:hover{opacity:1;color:var(--neg)}
+.tags.rost .tg.pick{background:rgba(245,236,216,.05);border-color:var(--line);color:var(--bone-dim);cursor:pointer}
+.tags.rost .tg.pick:hover{border-color:var(--gold);color:var(--gold-soft)}
+.assigned{font-size:11.5px;color:var(--gold-soft);margin:2px 0 8px}.assigned b{color:var(--gold)}
 .fcard{border-radius:18px;padding:26px;border:1px solid var(--line);background:var(--card);transition:transform .4s,box-shadow .4s}
 .fcard.ltk{border-color:var(--ltk-line);background:linear-gradient(165deg,var(--ltk-bg),var(--card))}
 .fcard.shop{border-color:var(--shop-line);background:linear-gradient(165deg,var(--shop-bg),var(--card))}
@@ -424,7 +443,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
         <span class="kick r" style="--i:0">Halio &amp; CoBa's Daughter · Affiliate Platform Analysis</span>
         <h1 class="r" style="--i:1;margin-top:14px">Which affiliate platforms should Halio &amp; CoBa's Daughter run? <em>The math.</em></h1>
         <p class="sub r" style="--i:2;margin-top:16px"><b>Both brands already run Shopify Collabs</b> (the paid track). The open question is the second job: a <b>low-cost organic</b> layer for extra sales. We compare all three platforms — Shopify Collabs, LTK, ShopMy — derive the numbers from AOV, then land the plan. Same playbook for both brands; <b>Halio is the worked example</b> (it launches first, CoBa follows).</p>
-        <div class="mrow r" style="--i:3"><span>For: <b>Rachel / CEO</b></span><span>Brands: <b>Halio &amp; CoBa's Daughter</b> — both on Shopify Collabs now</span><span>Adding LTK: <b>Halio now · CoBa Aug–Sep</b></span><span>Date: <b>06 Jul 2026</b></span></div>
+        <div class="mrow r" style="--i:3"><span>To: <b>Eva · Méline · Rachel</b></span><span>Brands: <b>Halio &amp; CoBa's Daughter</b> — both on Shopify Collabs now</span><span>Adding LTK: <b>Halio now · CoBa Aug–Sep</b></span><span>Date: <b>06 Jul 2026</b></span></div>
       </div></section>
 
       <!-- 2 · TWO ROLES -->
@@ -468,12 +487,14 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="hd"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z"/></svg><h3>LTK</h3><span class="tg">★ Pick</span></div>
             <div class="hero-l">Platform cost</div><div class="hero"><span class="num" data-count="0" data-prefix="$">$0</span></div>
             <div class="mini"><div><b>3.5×</b>in-app conversion</div><div><b>44M</b>high-intent shoppers</div><div><b>2×</b>sales from video</div></div>
+            <div class="imgslot" data-slot="duel-ltk"><img alt=""><span class="ph">🖼 Add LTK example</span><span class="srm" title="Remove">✕</span></div>
           </div>
           <div class="vsbadge"><span>VS</span></div>
           <div class="duelcard lose">
             <div class="hd"><svg viewBox="0 0 24 24"><path d="M4 9l1.5-4h13L20 9"/><path d="M5 9v10h14V9"/><path d="M4 9h16"/></svg><h3>ShopMy</h3><span class="tg">Reserve</span></div>
             <div class="hero-l">Platform cost</div><div class="hero"><span class="num" data-count="799" data-prefix="$">$799</span><span style="font-size:20px;color:var(--muted)">/mo</span></div>
             <div class="mini"><div><b>6-mo</b>lock-in ($4,794)</div><div><b>15–25%</b>higher commission</div><div><b>200K</b>curated creators</div></div>
+            <div class="imgslot" data-slot="duel-shopmy"><img alt=""><span class="ph">🖼 Add ShopMy example</span><span class="srm" title="Remove">✕</span></div>
           </div>
         </div>
         <p class="note r" style="--i:2">Same job, but LTK is <b style="color:var(--ltk)">free with far bigger reach and a video-first, shop-ready audience</b>. ShopMy has stronger creators and higher commissions — worth keeping for premium/derma plays later — but $799/mo + a 6-month lock is overkill for a low-cost sales layer.</p>
@@ -489,6 +510,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="how">GRWM, try-on hauls &amp; product demos posted <b>in the LTK app</b>, cross-posted to IG / TikTok. Video is their #1 format — <b>2× sales</b>, +64% click-outs, +46% creator earnings vs photo.</div>
             <div class="fstat"><div><b>3.5×</b>in-app conversion</div><div><b>84%</b>trust creator recs</div><div><b>40%</b>buy after repeat posts</div></div>
             <div class="avgbar">Avg creator sales <b>$500–5,000/mo</b> (10–50K followers) · platform <b>$6B GMV / 400K creators</b> (≈ $15K/creator/yr)</div>
+            <div class="imgslot" data-slot="fmt-ltk"><img alt=""><span class="ph">🖼 Add a video screenshot</span><span class="srm" title="Remove">✕</span></div>
           </div>
           <div class="fcard shop r" style="--i:2">
             <div class="fh"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg><h3>ShopMy</h3><span class="bd">Stories + shelf</span></div>
@@ -496,6 +518,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="how"><b>IG Stories</b> (their highest-converting action) linking to a curated <b>link-in-bio storefront</b> (Sections › Collections › Links). Category <b>Highlights persist</b> → long-tail sales weeks later. Links also in TikTok captions &amp; Pinterest.</div>
             <div class="fstat"><div><b>1+/wk</b>product Story (best practice)</div><div><b>10–30%</b>commission range</div><div><b>Long-tail</b>links resurface later</div></div>
             <div class="avgbar">Platform <b>$1B GMV / 185K creators</b> (≈ $5.4K/creator/yr) · higher AOV, curated audience · Talent Card shows each creator's AOV + conversion</div>
+            <div class="imgslot" data-slot="fmt-shopmy"><img alt=""><span class="ph">🖼 Add a Stories / shelf screenshot</span><span class="srm" title="Remove">✕</span></div>
           </div>
         </div>
         <p class="note r" style="--i:3"><b style="color:var(--ink2)">Shopify Collabs (paid track):</b> format is whatever <b style="color:var(--ink2)">we brief</b> — video / UGC to our campaign spec, delivered via unique affiliate links + discount codes. We control it because we pay.</p>
@@ -662,6 +685,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
   <button class="tool" id="tImg" title="Insert image — click a spot, then drag / resize (I)">🖼</button>
   <button class="tool" id="tEdit" title="Edit text directly (⌘B = bold)">✏️</button>
   <input type="file" id="imgFile" accept="image/*" style="display:none">
+  <input type="file" id="slotFile" accept="image/*" style="display:none">
   <span class="tdiv"></span>
   <span class="swatch on" data-c="#E0B266" style="background:#E0B266"></span>
   <span class="swatch" data-c="#CC774A" style="background:#CC774A"></span>
@@ -798,20 +822,30 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
   function placePop(px,py){const w=300;let l=Math.min(Math.max(12,px+14),innerWidth-w-12);let t=Math.min(Math.max(12,py-10),innerHeight-280);pop.style.left=l+'px';pop.style.top=t+'px';}
 
   function ctxBar(slide,extra){return `<div class="ctx"><span>Slide ${slide+1} — ${SLIDE_TITLES[slide]||''}</span><span class="meta-act">${extra||''}<a id="popClose">✕</a></span></div>`;}
+  function getRoster(){try{return JSON.parse(localStorage.getItem('coba_roster')||'[]');}catch(e){return[];}}
+  function saveRoster(list){try{const r=getRoster();list.forEach(t=>{if(!r.some(x=>x.email.toLowerCase()===t.email.toLowerCase()))r.push({name:t.name,email:t.email});});localStorage.setItem('coba_roster',JSON.stringify(r.slice(-12)));}catch(e){}}
   function openComposer(slide,x,y,px,py,rects){
+    const roster=getRoster();
     pop.innerHTML=ctxBar(slide)+`<textarea id="popText" placeholder="What's not working here? Suggest a change…"></textarea>
+      <div class="assign"><input id="popAssign" placeholder="＠ Assign someone — type email, press Enter" autocomplete="off"><div id="popTags" class="tags"></div>${roster.length?'<div class="tags rost">'+roster.map(p=>`<span class="tg pick" data-e="${esc(p.email)}" data-n="${esc(p.name||'')}">＋ ${esc(p.name||p.email)}</span>`).join('')+'</div>':''}</div>
       <div class="row"><button class="btn-send" id="popSend">Comment</button><button class="btn-ghost" id="popCancel">Cancel</button></div>`;
     placePop(px,py);pop.classList.add('show');popSticky=true;
     const ta=document.getElementById('popText');setTimeout(()=>ta.focus(),50);
+    let tags=[];const tagsEl=document.getElementById('popTags'),asg=document.getElementById('popAssign');
+    function drawTags(){tagsEl.innerHTML=tags.map((t,i)=>`<span class="tg">${esc(t.name||t.email)} <b data-i="${i}">✕</b></span>`).join('');tagsEl.querySelectorAll('b').forEach(b=>b.onclick=()=>{tags.splice(+b.dataset.i,1);drawTags();});}
+    function addTag(email,name){email=(email||'').trim();if(!validEmail(email))return false;if(!tags.some(t=>t.email.toLowerCase()===email.toLowerCase())){tags.push({email,name:(name||'').trim()||email.split('@')[0]});drawTags();}return true;}
+    asg.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();if(addTag(asg.value))asg.value='';}};
+    pop.querySelectorAll('.tg.pick').forEach(p=>p.onclick=()=>addTag(p.dataset.e,p.dataset.n));
     document.getElementById('popClose').onclick=closePop;
     document.getElementById('popCancel').onclick=closePop;
-    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;const c={id:uid(),type:'comment',slide,x,y,author:me,authorEmail:meEmail,text:t,ts:Date.now(),replies:[],resolved:false,rects:rects||null};persist('add',c).then(()=>openThread(c.id));};
+    document.getElementById('popSend').onclick=()=>{const t=ta.value.trim();if(!t)return;if(asg.value.trim())addTag(asg.value.trim());if(tags.length)saveRoster(tags);const c={id:uid(),type:'comment',slide,x,y,author:me,authorEmail:meEmail,text:t,ts:Date.now(),replies:[],resolved:false,rects:rects||null,mentions:tags.slice()};persist('add',c).then(()=>openThread(c.id));};
   }
   function openThread(id,sticky){
     const c=comments.find(x=>x.id===id);if(!c)return;
     if(idx!==c.slide)go(c.slide);
     const thread=[{author:c.author,text:c.text,ts:c.ts},...(c.replies||[])];
     pop.innerHTML=ctxBar(c.slide,`<a id="popResolve">${c.resolved?'Reopen':'Resolve ✓'}</a>${c.author===me?'<a id="popDel">Delete</a>':''}`)
+      +((c.mentions&&c.mentions.length)?`<div class="assigned">📌 Assigned to <b>${c.mentions.map(m=>esc(m.name||m.email)).join(', ')}</b></div>`:'')
       +thread.map(t=>`<div class="cmt"><span class="av" style="background:${colorFor(t.author)}">${initials(t.author)}</span><div class="bd"><div class="nm">${esc(t.author)} <time>${fmtTime(t.ts)}</time></div><div class="tx">${esc(t.text)}</div></div></div>`).join('')
       +`<textarea id="popReply" placeholder="Reply…"></textarea>
       <div class="row"><button class="btn-send" id="popReplySend">Reply</button></div>`;
@@ -852,6 +886,7 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
       } else if(it.type==='image'){ /* docked image panels are built in renderImages() */ }
     });
     renderImages();
+    paintSlots();
     cCount.textContent=comOf().filter(c=>!c.resolved).length;
     lastSig=sigOf(comments);
     renderList();
@@ -1053,7 +1088,24 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
     else if(e.key==='i'||e.key==='I')ensure(()=>setTool('img'));
   });
 
-  renderWho();load();
+  // ---- image slots on compare cards (click to attach; stored as type:'slot', synced to everyone) ----
+  let pendSlot=null;
+  function paintSlots(){
+    const byId={};comments.forEach(x=>{if(x&&x.type==='slot')byId[x.slot]=x;});
+    document.querySelectorAll('.imgslot').forEach(s=>{const it=byId[s.dataset.slot],img=s.querySelector('img');
+      if(it&&it.src){img.src=it.src;s.classList.add('filled');}else{img.removeAttribute('src');s.classList.remove('filled');}});
+  }
+  function wireSlots(){
+    document.querySelectorAll('.imgslot').forEach(s=>{
+      if(s.dataset.wired)return;s.dataset.wired='1';
+      s.addEventListener('click',ev=>{if(ev.target.classList.contains('srm'))return;if(s.classList.contains('filled'))return;ev.stopPropagation();pendSlot=s.dataset.slot;$('slotFile').click();});
+      const rm=s.querySelector('.srm');if(rm)rm.addEventListener('click',ev=>{ev.stopPropagation();persist('remove',{id:'slot:'+s.dataset.slot});});
+    });
+  }
+  $('slotFile').onchange=function(){const f=this.files&&this.files[0];this.value='';if(!f||!pendSlot)return;const id=pendSlot;pendSlot=null;
+    compressImg(f,data=>{if(!data){alert('Could not read that image.');return;}persist('update',{id:'slot:'+id,type:'slot',slot:id,src:data,author:me,ts:Date.now()});});};
+
+  wireSlots();renderWho();load();
   if(CONFIG.API)setInterval(()=>{ if(!(pop.classList.contains('show')||drawing||imgDrag||panel.classList.contains('open')||selbar.classList.contains('show'))) load(); },15000);
 })();
 
