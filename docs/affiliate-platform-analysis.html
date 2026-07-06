@@ -378,14 +378,19 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 /* keep equal columns — without min-width:0 a wide-min-content card blows the 1fr track out */
 .fmtgrid>*,.roles>*,.twolane>*,.duel>.duelcard,.perorder>*,.road>*{min-width:0}
 /* image slots on compare cards — click to attach an illustration; synced to everyone */
-.imgslot{margin-top:14px;border:1.5px dashed var(--line2);border-radius:12px;min-height:54px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:.2s;background:rgba(245,236,216,.02)}
+.imgslot{margin-top:14px;border:1.5px dashed var(--line2);border-radius:12px;min-height:56px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:12px;padding:12px;position:relative;transition:.2s;background:rgba(245,236,216,.02)}
+.imgslot:not(.filled){cursor:pointer}
 .imgslot:hover{border-color:var(--gold);background:rgba(203,165,94,.05)}
-.imgslot .ph{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;pointer-events:none;padding:8px;text-align:center}
-.imgslot img{display:none;width:100%;max-height:130px;object-fit:contain;border-radius:11px}
-.imgslot.filled{border-style:solid;border-color:var(--line);min-height:0;cursor:default;background:transparent}
-.imgslot.filled .ph{display:none}.imgslot.filled img{display:block}
-.imgslot .srm{display:none;position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;background:rgba(10,7,4,.72);border:1px solid var(--line2);color:#fff;font-size:12px;line-height:22px;text-align:center;cursor:pointer;z-index:3}
-.imgslot.filled .srm{display:block}.imgslot .srm:hover{color:var(--neg);border-color:var(--neg)}
+.imgslot .ph{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;pointer-events:none;padding:6px;text-align:center;width:100%}
+.imgslot.filled{border-style:solid;border-color:var(--line);background:transparent}
+.imgslot.filled .ph{display:none}
+.simg{position:relative;flex:none;line-height:0}
+.simg img{height:180px;width:auto;max-width:100%;display:block;border-radius:9px;box-shadow:0 8px 22px -12px rgba(0,0,0,.6);-webkit-user-drag:none}
+.simg .srm{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:#E4746B;color:#fff;font-size:11px;line-height:22px;text-align:center;cursor:pointer;z-index:4;opacity:0;transition:.15s}
+.simg .srz{position:absolute;right:-6px;bottom:-6px;width:16px;height:16px;border-radius:4px;background:var(--gold);border:2px solid #1a140d;cursor:nwse-resize;z-index:4;opacity:0;transition:.15s}
+.simg:hover .srm,.simg:hover .srz{opacity:1}
+.imgslot .addmore{flex:none;width:60px;height:70px;border:1.5px dashed var(--line2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:22px;cursor:pointer;transition:.2s;align-self:center}
+.imgslot .addmore:hover{border-color:var(--gold);color:var(--gold)}
 /* assign / @tag in the comment composer */
 .assign{margin-top:8px}
 #popAssign{width:100%;background:rgba(245,236,216,.05);border:1px solid var(--line);border-radius:8px;color:var(--bone);font:inherit;font-size:12.5px;padding:7px 9px;outline:none}
@@ -512,14 +517,14 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="hd"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z"/></svg><h3>LTK</h3><span class="tg">★ Pick</span></div>
             <div class="hero-l">Platform cost</div><div class="hero"><span class="num" data-count="0" data-prefix="$">$0</span></div>
             <div class="mini"><div><b>3.5×</b>in-app conversion</div><div><b>44M</b>high-intent shoppers</div><div><b>2×</b>sales from video</div></div>
-            <div class="imgslot" data-slot="duel-ltk"><img alt=""><span class="ph">🖼 Add LTK example</span><span class="srm" title="Remove">✕</span></div>
+            <div class="imgslot" data-slot="duel-ltk"><span class="ph">🖼 Add LTK example</span></div>
           </div>
           <div class="vsbadge"><span>VS</span></div>
           <div class="duelcard lose">
             <div class="hd"><svg viewBox="0 0 24 24"><path d="M4 9l1.5-4h13L20 9"/><path d="M5 9v10h14V9"/><path d="M4 9h16"/></svg><h3>ShopMy</h3><span class="tg">Reserve</span></div>
             <div class="hero-l">Platform cost</div><div class="hero"><span class="num" data-count="799" data-prefix="$">$799</span><span style="font-size:20px;color:var(--muted)">/mo</span></div>
             <div class="mini"><div><b>6-mo</b>lock-in ($4,794)</div><div><b>15–25%</b>higher commission</div><div><b>200K</b>curated creators</div></div>
-            <div class="imgslot" data-slot="duel-shopmy"><img alt=""><span class="ph">🖼 Add ShopMy example</span><span class="srm" title="Remove">✕</span></div>
+            <div class="imgslot" data-slot="duel-shopmy"><span class="ph">🖼 Add ShopMy example</span></div>
           </div>
         </div>
         <p class="note r" style="--i:2">Same job, but LTK is <b style="color:var(--ltk)">free with far bigger reach and a video-first, shop-ready audience</b>. ShopMy has stronger creators and higher commissions — worth keeping for premium/derma plays later — but $799/mo + a 6-month lock is overkill for a low-cost sales layer.</p>
@@ -535,7 +540,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="how">GRWM, try-on hauls &amp; product demos posted <b>in the LTK app</b>, cross-posted to IG / TikTok. Video is their #1 format — <b>2× sales</b>, +64% click-outs, +46% creator earnings vs photo.</div>
             <div class="fstat"><div><b>3.5×</b>in-app conversion</div><div><b>84%</b>trust creator recs</div><div><b>40%</b>buy after repeat posts</div></div>
             <div class="avgbar">Avg creator sales <b>$500–5,000/mo</b> (10–50K followers) · platform <b>$6B GMV / 400K creators</b> (≈ $15K/creator/yr)</div>
-            <div class="imgslot" data-slot="fmt-ltk"><img alt=""><span class="ph">🖼 Add a video screenshot</span><span class="srm" title="Remove">✕</span></div>
+            <div class="imgslot" data-slot="fmt-ltk"><span class="ph">🖼 Add a video screenshot</span></div>
           </div>
           <div class="fcard shop r" style="--i:2">
             <div class="fh"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg><h3>ShopMy</h3><span class="bd">Stories + shelf</span></div>
@@ -543,7 +548,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
             <div class="how"><b>IG Stories</b> (their highest-converting action) linking to a curated <b>link-in-bio storefront</b> (Sections › Collections › Links). Category <b>Highlights persist</b> → long-tail sales weeks later. Links also in TikTok captions &amp; Pinterest.</div>
             <div class="fstat"><div><b>1+/wk</b>product Story (best practice)</div><div><b>10–30%</b>commission range</div><div><b>Long-tail</b>links resurface later</div></div>
             <div class="avgbar">Platform <b>$1B GMV / 185K creators</b> (≈ $5.4K/creator/yr) · higher AOV, curated audience · Talent Card shows each creator's AOV + conversion</div>
-            <div class="imgslot" data-slot="fmt-shopmy"><img alt=""><span class="ph">🖼 Add a Stories / shelf screenshot</span><span class="srm" title="Remove">✕</span></div>
+            <div class="imgslot" data-slot="fmt-shopmy"><span class="ph">🖼 Add a Stories / shelf screenshot</span></div>
           </div>
         </div>
         <p class="note r" style="--i:3"><b style="color:var(--ink2)">Shopify Collabs (paid track):</b> format is whatever <b style="color:var(--ink2)">we brief</b> — video / UGC to our campaign spec, delivered via unique affiliate links + discount codes. We control it because we pay.</p>
@@ -809,7 +814,7 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
 
   let me='',meEmail='';try{me=localStorage.getItem('coba_user')||'';meEmail=localStorage.getItem('coba_email')||'';}catch(e){}
   let comments=[],tool='select',color='#E0B266',lastSig='';
-  const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,x.type,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length,x.gx,x.gy,x.gw,x.gh,x.slot,(x.src||'').length,(x.html||'').length,(x.mentions||[]).length]));  // include image/slot/position/edit so any change syncs on poll
+  const sigOf=a=>JSON.stringify((a||[]).map(x=>[x.id,x.type,!!x.resolved,(x.replies||[]).length,(x.pts||[]).length,(x.rects||[]).length,x.gx,x.gy,x.gw,x.gh,x.slot,x.h,(x.src||'').length,(x.html||'').length,(x.mentions||[]).length]));  // include image/slot/position/edit so any change syncs on poll
 
   const LS_KEY='coba_pins_'+DECK_ID;   // per-deck cache key (shared origin)
   const mine=arr=>(arr||[]).filter(x=>(x.deck||'coba-ltk')===DECK_ID);   // only this deck's items
@@ -1117,22 +1122,39 @@ const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & 
     else if(e.key==='i'||e.key==='I')ensure(()=>setTool('img'));
   });
 
-  // ---- image slots on compare cards (click to attach; stored as type:'slot', synced to everyone) ----
+  // ---- image slots on compare cards: MANY images per slot, each resizable; synced to everyone ----
   let pendSlot=null;
   function paintSlots(){
-    const byId={};comments.forEach(x=>{if(x&&x.type==='slot')byId[x.slot]=x;});
-    document.querySelectorAll('.imgslot').forEach(s=>{const it=byId[s.dataset.slot],img=s.querySelector('img');
-      if(it&&it.src){img.src=it.src;s.classList.add('filled');}else{img.removeAttribute('src');s.classList.remove('filled');}});
+    document.querySelectorAll('.imgslot').forEach(s=>{
+      const slot=s.dataset.slot, imgs=comments.filter(x=>x&&x.type==='slot'&&x.slot===slot);
+      s.querySelectorAll('.simg,.addmore').forEach(e=>e.remove());
+      const ph=s.querySelector('.ph');
+      if(!imgs.length){s.classList.remove('filled');if(ph)ph.style.display='';return;}
+      s.classList.add('filled');if(ph)ph.style.display='none';
+      imgs.forEach(it=>{
+        const d=document.createElement('div');d.className='simg';
+        d.innerHTML='<img src="'+it.src+'" draggable="false" style="height:'+(+it.h||180)+'px"><span class="srm" title="Remove">✕</span><span class="srz" title="Drag to resize"></span>';
+        d.querySelector('.srm').addEventListener('click',ev=>{ev.stopPropagation();persist('remove',{id:it.id});});
+        d.querySelector('.srz').addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();imgDrag=true;
+          const img=d.querySelector('img'),sy=ev.clientY,sh=(+it.h||180);let nh=sh;
+          const mv=e=>{nh=Math.max(80,Math.min(460,Math.round(sh+(e.clientY-sy))));img.style.height=nh+'px';};
+          const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;it.h=nh;persist('update',it);};
+          document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);});
+        s.appendChild(d);
+      });
+      const add=document.createElement('div');add.className='addmore';add.textContent='＋';add.title='Add another image';
+      add.addEventListener('click',ev=>{ev.stopPropagation();pendSlot=slot;$('slotFile').click();});
+      s.appendChild(add);
+    });
   }
   function wireSlots(){
     document.querySelectorAll('.imgslot').forEach(s=>{
       if(s.dataset.wired)return;s.dataset.wired='1';
-      s.addEventListener('click',ev=>{if(ev.target.classList.contains('srm'))return;if(s.classList.contains('filled'))return;ev.stopPropagation();pendSlot=s.dataset.slot;$('slotFile').click();});
-      const rm=s.querySelector('.srm');if(rm)rm.addEventListener('click',ev=>{ev.stopPropagation();persist('remove',{id:'slot:'+s.dataset.slot});});
+      s.addEventListener('click',ev=>{if(ev.target.closest('.simg')||ev.target.closest('.addmore'))return;if(s.classList.contains('filled'))return;ev.stopPropagation();pendSlot=s.dataset.slot;$('slotFile').click();});
     });
   }
-  $('slotFile').onchange=function(){const f=this.files&&this.files[0];this.value='';if(!f||!pendSlot)return;const id=pendSlot;pendSlot=null;
-    compressImg(f,data=>{if(!data){alert('Could not read that image.');return;}persist('update',{id:'slot:'+id,type:'slot',slot:id,src:data,author:me,ts:Date.now()});});};
+  $('slotFile').onchange=function(){const f=this.files&&this.files[0];this.value='';if(!f||!pendSlot)return;const slot=pendSlot;pendSlot=null;
+    compressImg(f,data=>{if(!data){alert('Could not read that image.');return;}persist('update',{id:'slot:'+slot+':'+uid(),type:'slot',slot:slot,src:data,h:180,author:me,ts:Date.now()});});};
 
   wireSlots();renderWho();load();
   if(CONFIG.API)setInterval(()=>{ if(!(pop.classList.contains('show')||drawing||imgDrag||panel.classList.contains('open')||selbar.classList.contains('show'))) load(); },15000);
