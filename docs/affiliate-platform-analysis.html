@@ -115,7 +115,7 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .photo .rm{position:absolute;top:6px;right:6px;z-index:6;width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;opacity:0;transition:.2s}
 .photo:hover .rm{opacity:1}
 .pcap{padding:8px 12px 2px;font-size:12.5px;color:var(--bone-dim);font-weight:300}.pcap .u{font-weight:700;color:var(--bone)}.pcap .tag{color:var(--sage)}
-.shop{margin:7px 12px 12px;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(90deg,var(--gold),var(--clay));color:var(--noir);font-size:11px;font-weight:700;letter-spacing:0.03em;padding:8px;border-radius:9px;text-transform:uppercase}
+.shoplook{margin:7px 12px 12px;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(90deg,var(--gold),var(--clay));color:var(--noir);font-size:11px;font-weight:700;letter-spacing:0.03em;padding:8px;border-radius:9px;text-transform:uppercase}
 
 /* measure */
 .ns{background:linear-gradient(120deg,var(--card),var(--panel));border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:15px;padding:22px 28px;margin-bottom:14px}
@@ -290,7 +290,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .mrow{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:var(--muted);font-weight:500}.mrow b{color:var(--ink2);font-weight:700}
 
 .roles{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.role{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 28px;display:flex;gap:18px;align-items:flex-start;transition:.4s}
+.role{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 28px;display:flex;gap:18px;align-items:flex-start;transition:.4s;text-align:left}
 .role .ic{flex:none;width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center}
 .role.p .ic{background:var(--paid-bg);color:var(--paid)}.role.o .ic{background:var(--ltk-bg);color:var(--ltk)}
 .role .ic svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.7;fill:none}
@@ -351,6 +351,8 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .flag{margin-top:16px;background:rgba(206,155,111,.07);border:1px solid var(--shop-line);border-radius:12px;padding:15px 18px;font-size:14px;color:#e4cdb2}.flag b{color:var(--ink)}
 
 .fmtgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+/* keep equal columns — without min-width:0 a wide-min-content card blows the 1fr track out */
+.fmtgrid>*,.roles>*,.twolane>*,.duel>.duelcard,.perorder>*,.road>*{min-width:0}
 .fcard{border-radius:18px;padding:26px;border:1px solid var(--line);background:var(--card);transition:transform .4s,box-shadow .4s}
 .fcard.ltk{border-color:var(--ltk-line);background:linear-gradient(165deg,var(--ltk-bg),var(--card))}
 .fcard.shop{border-color:var(--shop-line);background:linear-gradient(165deg,var(--shop-bg),var(--card))}
