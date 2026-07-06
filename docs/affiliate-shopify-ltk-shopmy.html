@@ -228,24 +228,14 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .tool{width:38px;height:38px;display:grid;place-items:center;background:rgba(28,22,15,.82);backdrop-filter:blur(8px);color:var(--bone-dim);border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:15px;transition:.2s}
 .tool:hover{color:var(--gold);border-color:var(--gold)}
 .tool.on{background:linear-gradient(90deg,var(--gold),var(--clay));color:#1a140d;border-color:transparent}
-/* docked image panel — the .inner text column reflows into the space that's left */
-.slide.has-img{gap:52px}
-.slide.has-img.dk-right{flex-direction:row;justify-content:flex-start;align-items:center}
-.slide.has-img.dk-left{flex-direction:row-reverse;justify-content:flex-start;align-items:center}
-.slide.has-img.dk-top{flex-direction:column;justify-content:flex-start}
-.slide.has-img.dk-bottom{flex-direction:column;justify-content:flex-start}
-.slide.has-img>.inner{flex:1 1 0;min-width:0;min-height:0;max-width:none;margin:0}
-.impanel{position:relative;flex:none;display:flex;flex-direction:column;gap:14px;align-self:stretch}
-.slide.dk-right>.impanel,.slide.dk-left>.impanel{width:var(--isize,36%);height:100%}
-.slide.dk-top>.impanel,.slide.dk-bottom>.impanel{width:100%;height:var(--isize,44%)}
+/* free-placement image on a 12×8 grid — the .inner text auto-fills the largest empty rectangle */
+.slide.has-img{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,1fr);gap:24px 40px}
+.slide.has-img>.inner{grid-area:var(--tarea,1/1/9/13);max-width:none;width:auto;margin:0;min-width:0;min-height:0;align-self:center;overflow:hidden}
+.slide.has-img>.impanel{grid-area:var(--iarea,2/8/8/13);position:relative;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
 .impanel .ph{position:relative;flex:1 1 0;min-height:0}
 .impanel img{width:100%;height:100%;object-fit:contain;border-radius:12px;background:transparent;filter:drop-shadow(0 14px 34px rgba(0,0,0,.55));display:block;-webkit-user-drag:none}
 .impanel .del{display:none;position:absolute;top:-11px;right:-11px;width:22px;height:22px;border-radius:50%;background:#E4746B;color:#fff;font-size:12px;line-height:22px;text-align:center;cursor:pointer;z-index:7;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.impanel .rz{display:none;position:absolute;z-index:7;background:var(--gold);border:2px solid #1a140d;border-radius:5px}
-.slide.dk-right>.impanel .rz{left:-11px;top:50%;transform:translateY(-50%);width:9px;height:52px;cursor:ew-resize}
-.slide.dk-left>.impanel .rz{right:-11px;top:50%;transform:translateY(-50%);width:9px;height:52px;cursor:ew-resize}
-.slide.dk-top>.impanel .rz{bottom:-11px;left:50%;transform:translateX(-50%);height:9px;width:52px;cursor:ns-resize}
-.slide.dk-bottom>.impanel .rz{top:-11px;left:50%;transform:translateX(-50%);height:9px;width:52px;cursor:ns-resize}
+.impanel .rz{display:none;position:absolute;right:-9px;bottom:-9px;width:16px;height:16px;border-radius:4px;background:var(--gold);border:2px solid #1a140d;cursor:nwse-resize;z-index:7}
 body.imgmode .impanel{cursor:move;outline:1.6px dashed var(--gold);outline-offset:5px;border-radius:12px}
 body.imgmode .impanel .del,body.imgmode .impanel .rz{display:block}
 body.imgmode .slide{cursor:copy}
@@ -581,7 +571,7 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
   function render(){
     document.querySelectorAll('.pin').forEach(p=>p.remove());
     document.querySelectorAll('.impanel').forEach(p=>p.remove());
-    slides.forEach(sl=>{sl.classList.remove('has-img','dk-left','dk-right','dk-top','dk-bottom');sl.style.removeProperty('--isize');});
+    slides.forEach(sl=>{sl.classList.remove('has-img');sl.style.removeProperty('--iarea');sl.style.removeProperty('--tarea');});
     slides.forEach((sl,i)=>{const ov=ovOf(i);if(ov)ov.innerHTML='';});
     comments.forEach(it=>{
       const sl=slides[it.slide];if(!sl)return;
@@ -611,41 +601,63 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
     lastSig=sigOf(comments);
     renderList();
   }
-  const clampSize=v=>Math.max(15,Math.min(72,(typeof v==='number'&&!isNaN(v))?v:36));
-  const DOCKS=['left','right','top','bottom'];
-  function nearestDock(sl,cx,cy){const r=sl.getBoundingClientRect(),nx=(cx-r.left)/r.width,ny=(cy-r.top)/r.height;const d={left:nx,right:1-nx,top:ny,bottom:1-ny};let best='right',bv=9;for(const k in d){if(d[k]<bv){bv=d[k];best=k;}}return best;}
+  const GC=12, GR=8, PADX=96/1280, PADY=64/720, cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function cellAt(sl,px,py){const r=sl.getBoundingClientRect();
+    let fx=((px-r.left)/r.width-PADX)/(1-2*PADX), fy=((py-r.top)/r.height-PADY)/(1-2*PADY);
+    return {col:Math.floor(cl(fx,0,0.9999)*GC)+1,row:Math.floor(cl(fy,0,0.9999)*GR)+1};}
+  function normBlock(it){
+    let gw=cl(Math.round(it.gw||5),1,GC), gh=cl(Math.round(it.gh||5),1,GR);
+    let gx=cl(Math.round(it.gx||8),1,GC-gw+1), gy=cl(Math.round(it.gy||2),1,GR-gh+1);
+    return {gx,gy,gw,gh};}
+  // given the image block, put the text in the LARGEST empty full-width/height band that's left
+  function areasFor(b){
+    const ic1=b.gx, ic2=b.gx+b.gw-1, ir1=b.gy, ir2=b.gy+b.gh-1, bands=[];
+    if(ir1>1)  bands.push({a:(ir1-1)*GC, t:`1 / 1 / ${ir1} / ${GC+1}`});               // above
+    if(ir2<GR) bands.push({a:(GR-ir2)*GC, t:`${ir2+1} / 1 / ${GR+1} / ${GC+1}`});       // below
+    if(ic1>1)  bands.push({a:(ic1-1)*GR, t:`1 / 1 / ${GR+1} / ${ic1}`});                // left
+    if(ic2<GC) bands.push({a:(GC-ic2)*GR, t:`1 / ${ic2+1} / ${GR+1} / ${GC+1}`});       // right
+    bands.sort((x,y)=>y.a-x.a);
+    return {iarea:`${ir1} / ${ic1} / ${ir2+1} / ${ic2+1}`, tarea: bands.length?bands[0].t:`1 / 1 / ${GR+1} / ${GC+1}`};
+  }
+  function applyBlock(sl,imgs){const a=areasFor(normBlock(imgs[0]));sl.style.setProperty('--iarea',a.iarea);sl.style.setProperty('--tarea',a.tarea);}
   function renderImages(){
     const bySlide={};
     comments.forEach(it=>{if(it.type==='image'&&slides[it.slide]){(bySlide[it.slide]=bySlide[it.slide]||[]).push(it);}});
     Object.keys(bySlide).forEach(k=>{
-      const i=+k, sl=slides[i], imgs=bySlide[k];
-      const dock=DOCKS.indexOf(imgs[0].dock)>=0?imgs[0].dock:'right', size=clampSize(imgs[0].size);
-      sl.classList.add('has-img','dk-'+dock);sl.style.setProperty('--isize',size+'%');
+      const sl=slides[+k], imgs=bySlide[k];
+      sl.classList.add('has-img');applyBlock(sl,imgs);
       const panel=document.createElement('div');panel.className='impanel';
       imgs.forEach(it=>{const ph=document.createElement('div');ph.className='ph';
         ph.innerHTML='<img src="'+it.src+'" draggable="false"><span class="del" title="Remove image">✕</span>';
         ph.querySelector('.del').addEventListener('click',ev=>{ev.stopPropagation();persist('remove',it);});
         panel.appendChild(ph);});
-      const rz=document.createElement('span');rz.className='rz';rz.title='Drag to resize';panel.appendChild(rz);
-      sl.appendChild(panel);attachPanel(panel,rz,sl,imgs,dock,size);
+      const rz=document.createElement('span');rz.className='rz';rz.title='Drag corner to resize';panel.appendChild(rz);
+      sl.appendChild(panel);attachPanel(panel,rz,sl,imgs);
     });
   }
-  function attachPanel(panel,rz,sl,imgs,dock,size){
+  function attachPanel(panel,rz,sl,imgs){
+    // resize — bottom-right corner sets the block's span; text re-fills live
     rz.addEventListener('pointerdown',ev=>{
       if(tool!=='img')return;ev.preventDefault();ev.stopPropagation();imgDrag=true;
-      const r=sl.getBoundingClientRect(),sx=ev.clientX,sy=ev.clientY;let ns=size;
-      const mv=e=>{let v=size;
-        if(dock==='right')v=size+(sx-e.clientX)/r.width*100;else if(dock==='left')v=size+(e.clientX-sx)/r.width*100;
-        else if(dock==='top')v=size+(e.clientY-sy)/r.height*100;else v=size+(sy-e.clientY)/r.height*100;
-        ns=clampSize(v);sl.style.setProperty('--isize',ns+'%');};
-      const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;imgs.forEach(it=>it.size=ns);imgs.forEach(it=>persist('update',it));};
+      const b=normBlock(imgs[0]);let nb=b;
+      const mv=e=>{const c=cellAt(sl,e.clientX,e.clientY);
+        nb={gx:b.gx,gy:b.gy,gw:cl(c.col-b.gx+1,1,GC-b.gx+1),gh:cl(c.row-b.gy+1,1,GR-b.gy+1)};
+        const a=areasFor(nb);sl.style.setProperty('--iarea',a.iarea);sl.style.setProperty('--tarea',a.tarea);};
+      const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;
+        imgs.forEach(it=>{it.gx=nb.gx;it.gy=nb.gy;it.gw=nb.gw;it.gh=nb.gh;});imgs.forEach(it=>persist('update',it));};
       document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
     });
+    // drag — move the block to ANY cell; text auto-fills the largest empty rectangle around it
     panel.addEventListener('pointerdown',ev=>{
       if(tool!=='img'||ev.target.classList.contains('rz')||ev.target.classList.contains('del'))return;
-      ev.preventDefault();ev.stopPropagation();imgDrag=true;let nd=dock,moved=false;
-      const mv=e=>{const d=nearestDock(sl,e.clientX,e.clientY);if(d!==nd){nd=d;sl.classList.remove('dk-left','dk-right','dk-top','dk-bottom');sl.classList.add('dk-'+nd);}moved=true;};
-      const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;if(moved&&nd!==dock){imgs.forEach(it=>it.dock=nd);imgs.forEach(it=>persist('update',it));}};
+      ev.preventDefault();ev.stopPropagation();imgDrag=true;
+      const b=normBlock(imgs[0]),g=cellAt(sl,ev.clientX,ev.clientY),offC=g.col-b.gx,offR=g.row-b.gy;
+      let nb=b,moved=false;
+      const mv=e=>{const c=cellAt(sl,e.clientX,e.clientY);
+        nb={gx:cl(c.col-offC,1,GC-b.gw+1),gy:cl(c.row-offR,1,GR-b.gh+1),gw:b.gw,gh:b.gh};
+        const a=areasFor(nb);sl.style.setProperty('--iarea',a.iarea);sl.style.setProperty('--tarea',a.tarea);moved=true;};
+      const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);imgDrag=false;
+        if(moved){imgs.forEach(it=>{it.gx=nb.gx;it.gy=nb.gy;});imgs.forEach(it=>persist('update',it));}};
       document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
     });
   }
@@ -713,7 +725,7 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
   }
   $('imgFile').onchange=function(){const f=this.files&&this.files[0];this.value='';if(!f||!pendImg)return;const p=pendImg;pendImg=null;
     compressImg(f,data=>{if(!data){alert('Could not read that image.');return;}
-      persist('update',{id:uid(),type:'image',slide:p.slide,dock:p.dock||'right',size:36,src:data,author:me,ts:Date.now()});});};
+      persist('update',{id:uid(),type:'image',slide:p.slide,gx:p.gx,gy:p.gy,gw:5,gh:5,src:data,author:me,ts:Date.now()});});};
   document.querySelectorAll('#fmtbar [data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>{e.preventDefault();try{document.execCommand(b.dataset.cmd,false,null);}catch(_){}}));
   document.querySelectorAll('.swatch').forEach(sw=>sw.onclick=()=>{color=sw.dataset.c;document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('on'));sw.classList.add('on');});
   $('tClear').onclick=()=>{const m=comments.filter(x=>(x.type==='draw'||x.type==='hl')&&x.slide===idx);if(!m.length){return;}if(!confirm('Clear all drawings & highlights on this slide? (comments stay)'))return;m.forEach(it=>persist('remove',it));};
@@ -733,9 +745,10 @@ const SLIDE_TITLES=["Cover","Frame","Two Roles","3 Platforms","Duel","AOV","Budg
     sl.addEventListener('pointerup',()=>{if(drawing&&drawing.slide===i){if(drawing.pts.length>1)persist('update',{id:uid(),type:'draw',slide:i,mode:drawing.mode,color:drawing.color,pts:drawing.pts,author:me,ts:Date.now()});else if(drawing.el)drawing.el.remove();drawing=null;}});
     sl.addEventListener('click',ev=>{
       if(tool==='img'){
-        if(ev.target.closest&&ev.target.closest('.impanel'))return;   // clicking the image panel = drag/resize, not insert
+        if(ev.target.closest&&ev.target.closest('.impanel'))return;   // clicking the image = drag/resize, not insert
         ev.stopPropagation();ev.preventDefault();
-        pendImg={slide:i,dock:nearestDock(sl,ev.clientX,ev.clientY)};$('imgFile').click();return;
+        const c=cellAt(sl,ev.clientX,ev.clientY);
+        pendImg={slide:i,gx:cl(c.col-2,1,GC-4),gy:cl(c.row-2,1,GR-4)};$('imgFile').click();return;
       }
       if(tool!=='comment')return;
       ev.stopPropagation();ev.preventDefault();
