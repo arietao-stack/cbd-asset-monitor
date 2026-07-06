@@ -44,6 +44,30 @@ h1,h2,h3,h4,q{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1
 .r{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .8s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*0.08s)}
 .slide.active .r{opacity:1;transform:none}
 
+/* ── varied attention effects on emphasis lines — replay each time the slide opens ── */
+@keyframes fxPop{0%{transform:scale(.82);opacity:0}62%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}
+@keyframes fxBlur{0%{opacity:0;filter:blur(13px)}100%{opacity:1;filter:blur(0)}}
+@keyframes fxGlow{0%{filter:drop-shadow(0 0 0 transparent)}45%{filter:drop-shadow(0 0 15px var(--gold))}100%{filter:drop-shadow(0 0 0 transparent)}}
+@keyframes fxRise{0%{opacity:0;transform:translateY(16px);filter:blur(6px)}100%{opacity:1;transform:none;filter:blur(0)}}
+@keyframes fxSweep{0%{background-position:200% 0}100%{background-position:-60% 0}}
+/* big result / hero numbers — pop in, then a one-shot gold glow */
+.slide.active .flow .res{animation:fxPop .6s cubic-bezier(.2,1.35,.3,1) .35s both}
+.slide.active .flow .res .vv{animation:fxGlow 2s ease-out 1.3s both}
+.slide.active .po{animation:fxRise .7s ease .15s both}
+.slide.active .po .big{animation:fxGlow 2s ease-out .9s both}
+.slide.active .hero .num{animation:fxGlow 2.4s ease-out .8s both}
+.slide.active .tl .pct{animation:fxPop .6s cubic-bezier(.2,1.35,.3,1) .45s both}
+/* badges & chips — quick pop */
+.slide.active .duelcard .tg,.slide.active .fcard .bd,.slide.active .rphase .badge{animation:fxPop .5s cubic-bezier(.2,1.35,.3,1) .5s both}
+/* verdict row + callout flags — blur-in for attention */
+.slide.active tr.verdict td{animation:fxBlur .7s ease .3s both}
+.slide.active .flag{animation:fxRise .75s ease .3s both}
+/* section-title chip glints */
+.slide.active .section-t .n0{animation:fxGlow 1.8s ease-out .3s both}
+/* shimmer sweep across the conclusion headline */
+.slide.active .concl .ch2 em{background-image:linear-gradient(100deg,var(--gold) 20%,var(--gold-soft) 45%,#fff 50%,var(--gold-soft) 55%,var(--gold) 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:fxSweep 2.2s ease-out .6s 1 both}
+@media(prefers-reduced-motion:reduce){.slide.active .flow .res,.slide.active .flow .res .vv,.slide.active .po,.slide.active .po .big,.slide.active .hero .num,.slide.active .tl .pct,.slide.active .duelcard .tg,.slide.active .fcard .bd,.slide.active .rphase .badge,.slide.active tr.verdict td,.slide.active .flag,.slide.active .section-t .n0,.slide.active .concl .ch2 em{animation:none}}
+
 /* cover */
 #s1{justify-content:center}
 .kick{font-size:12px;letter-spacing:0.3em;text-transform:uppercase;color:var(--bone-dim);font-weight:600;margin-bottom:26px}
