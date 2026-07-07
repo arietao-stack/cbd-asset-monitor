@@ -371,7 +371,7 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
 .perorder{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
 .po{background:#241f17;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
 .po .big{font-size:34px;font-weight:600;letter-spacing:-.01em;font-family:var(--serif)}
-.po.h .big{color:var(--ltk)}.po.c2 .big{color:var(--paid)}.po.cb .big{color:var(--shop)}
+.po.h .big{color:var(--ltk)}.po.c2 .big{color:var(--paid)}.po.cb .big{color:var(--shop)}.po.cb2 .big{color:var(--gold-soft)}
 .po .l{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:4px}
 .flag{margin-top:16px;background:rgba(206,155,111,.07);border:1px solid var(--shop-line);border-radius:12px;padding:15px 18px;font-size:14px;color:#e4cdb2}.flag b{color:var(--ink)}
 
@@ -575,43 +575,20 @@ body{background-image:radial-gradient(70% 55% at 85% -8%,rgba(203,165,94,0.16),t
       </div></section>
 
       <!-- 7 · AOV · HALIO -->
+      <!-- 5 · AOV → PER-ORDER (merged) -->
       <section class="slide" id="s7"><div class="inner">
-        <div class="section-t r" style="--i:0"><span class="n0">5</span>Where the commission comes from — it starts with AOV</div>
+        <div class="section-t r" style="--i:0"><span class="n0">5</span>Where the commission comes from — the per-order picture</div>
         <div class="mathwrap r" style="--i:1">
-          <div class="note" style="margin:0 0 10px">ⓘ <b style="color:var(--ink)">Orders/creator = a planning assumption</b> (6/mo), not actuals. AOV &amp; commission rates are agreed — only the order count is an estimate to model the math. Adjust once we have live data.</div>
-          <div class="brandtab"><svg width="14" height="14" viewBox="0 0 24 24" stroke-width="2"><path d="M6 7h12l-1 13H7L6 7z"/></svg>HALIO · AOV $400 · 6 orders/creator/mo <span style="color:var(--muted)">(assumed)</span></div>
-          <div class="flow"><div class="lab">Shopify Collabs<span class="s">10 paid creators</span></div>
-            <div class="cx aov"><div class="kk">AOV</div><div class="vv">$400</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">orders</div><div class="vv">6</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">creators</div><div class="vv">10</div></div><div class="op">=</div>
-            <div class="cx"><div class="kk">sales</div><div class="vv">$24,000</div></div><div class="op">× 10% =</div>
-            <div class="res"><div class="kk">commission</div><div class="vv num" data-count="2400" data-prefix="$">$2,400</div></div></div>
-          <div class="flow"><div class="lab">LTK<span class="s">~4 organic creators</span></div>
-            <div class="cx aov"><div class="kk">AOV</div><div class="vv">$400</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">orders</div><div class="vv">6</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">creators</div><div class="vv">4</div></div><div class="op">=</div>
-            <div class="cx"><div class="kk">sales</div><div class="vv">$9,600</div></div><div class="op">× 15% =</div>
-            <div class="res"><div class="kk">commission</div><div class="vv num" data-count="1440" data-prefix="$">$1,440</div></div></div>
-        </div>
-      </div></section>
-
-      <!-- 8 · AOV · COBA + PER-ORDER -->
-      <section class="slide" id="s8"><div class="inner">
-        <div class="section-t r" style="--i:0"><span class="n0">5</span>AOV → commission — CoBa's Daughter &amp; the per-order picture</div>
-        <div class="mathwrap r" style="--i:1">
-          <div class="brandtab coba"><svg width="14" height="14" viewBox="0 0 24 24" stroke-width="2"><path d="M6 7h12l-1 13H7L6 7z"/></svg>COBA'S DAUGHTER · AOV $100 · already on Shopify Collabs · adds LTK Aug–Sep</div>
-          <div class="flow"><div class="lab">LTK<span class="s">~4 organic creators</span></div>
-            <div class="cx aov"><div class="kk">AOV</div><div class="vv">$100</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">orders</div><div class="vv">6</div></div><div class="op">×</div>
-            <div class="cx"><div class="kk">creators</div><div class="vv">4</div></div><div class="op">=</div>
-            <div class="cx"><div class="kk">sales</div><div class="vv">$2,400</div></div><div class="op">× 15% =</div>
-            <div class="res"><div class="kk">commission</div><div class="vv num" data-count="360" data-prefix="$">$360</div></div></div>
-          <div class="perorder">
+          <div class="note" style="margin:0 0 14px">ⓘ <b style="color:var(--ink)">AOV × commission rate = what a creator earns per order</b> — the single biggest lever on whether they'll post. AOV &amp; rates are agreed; order counts are planning assumptions.</div>
+          <div class="brandtab">HALIO · AOV $400 · Collabs 10% · LTK 15%</div>
+          <div class="brandtab coba" style="margin-top:7px">COBA'S DAUGHTER · AOV $100 · Collabs 10% · LTK 20%</div>
+          <div class="perorder" style="grid-template-columns:repeat(4,1fr);margin-top:18px">
             <div class="po h"><div class="big num" data-count="60" data-prefix="$">$60</div><div class="l">Halio · LTK — per order (15% × $400)</div></div>
             <div class="po c2"><div class="big num" data-count="40" data-prefix="$">$40</div><div class="l">Halio · Shopify Collabs — per order (10% × $400)</div></div>
-            <div class="po cb"><div class="big num" data-count="15" data-prefix="$">$15</div><div class="l">CoBa · LTK — per order (15% × $100)</div></div>
+            <div class="po cb"><div class="big num" data-count="20" data-prefix="$">$20</div><div class="l">CoBa · LTK — per order (20% × $100)</div></div>
+            <div class="po cb2"><div class="big num" data-count="10" data-prefix="$">$10</div><div class="l">CoBa · Shopify Collabs — per order (10% × $100)</div></div>
           </div>
-          <div class="flag">⚠️ <b>AOV drives everything.</b> Halio's $400 AOV makes 15% worth <b>$60/order</b> — very attractive to creators. CoBa's $100 AOV makes the same 15% only <b>$15/order</b> — thin. CoBa may need a higher rate or heavier gifting to stay competitive on LTK.</div>
+          <div class="flag" style="margin-top:16px">⚠️ <b>AOV drives everything.</b> Halio's $400 AOV makes even 15% worth <b>$60/order</b> — very attractive to creators. CoBa's $100 AOV, even bumped to <b>20%, is only $20/order</b> — thin. CoBa leans on gifting + the higher rate to stay competitive on LTK.</div>
         </div>
       </div></section>
 
@@ -793,7 +770,7 @@ const start=parseInt((location.hash||'').replace('#',''));go(Number.isInteger(st
 /* Set CONFIG.API to a backend URL to SHARE across people + auto-email. Blank = saved on THIS device only. */
 const CONFIG={ API:"https://script.google.com/macros/s/AKfycbxTRbXPTam7Rzupu1o0mepcgcxbifcEzPUANrtNcysv0WDGnIxmodOK7jkBvIAjIg/exec" };
 const DECK_ID="affiliate-analysis", DECK_NAME="Affiliate Platform Analysis";
-const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & Control","Who Controls","AOV · Halio","AOV · CoBa","Budget · Halio","Budget · CoBa","Conclusion","Rollout","Next Steps","Sources"];
+const SLIDE_TITLES=["Cover","Two Roles","3 Platforms","LTK vs ShopMy","Format & Control","Who Controls","AOV → Per-order","Budget · Halio","Budget · CoBa","Conclusion","Rollout","Next Steps","Sources"];
 (function(){
   const AVA=['#E0B266','#CC774A','#9AA07E','#D7A98A','#7FA8B5','#C98F5A'];
   const colorFor=s=>AVA[[...(s||'?')].reduce((a,c)=>a+c.charCodeAt(0),0)%AVA.length];
